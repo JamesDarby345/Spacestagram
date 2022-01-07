@@ -3,7 +3,7 @@ import { Collection, ObjectId } from "mongodb";
 export interface NASAImage {
   _id: ObjectId;
   likes: number;
-  copyright: string;
+  copyright?: string;
   date: string;
   explanation: string;
   hdurl: string;

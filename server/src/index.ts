@@ -1,7 +1,8 @@
 import express, { Application } from "express";
 import { connectDatabase } from "./database";
 import { ApolloServer } from "apollo-server-express";
-import { typeDefs, resolvers } from "./graphql";
+import { typeDefs } from "./graphql";
+import { resolvers } from "./graphql/resolvers";
 
 const mount = async (app: Application) => {
   const server = new ApolloServer({ 
@@ -16,6 +17,9 @@ const mount = async (app: Application) => {
     app.listen(process.env.PORT);
     console.log(`[app] : http://localhost:${process.env.PORT}`);
   });
+
+  // const a = await db.NASAImages.find({}).toArray();
+  // console.log(a);
 }
 
 mount(express());

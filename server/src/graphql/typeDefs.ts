@@ -19,7 +19,7 @@ export const typeDefs = gql`
   }
 
   type Mutation {
-    like(id: ID!): Int
-    unlike(id: ID!): Int
+    like(id: ID!): NASAImage
+    unlike(id: ID!): NASAImage
   }
 `;
