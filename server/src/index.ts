@@ -3,20 +3,19 @@ import { connectDatabase } from "./database";
 import { ApolloServer } from "apollo-server-express";
 import { typeDefs, resolvers } from "./graphql";
 
-const app = express();
-const port = 9000;
-
-const server = new ApolloServer({ typeDefs, resolvers });
-
-const mount = (app: Application) => {
-  const db = await connectDatabase();
-  server.start().then(() => { 
-    server.applyMiddleware({ app, path: "/api" });
-    // app.use(express.json())
-    app.listen(port);
-    console.log(`[app] : http://localhost:${port}`);
+const mount = async (app: Application) => {
+  const server = new ApolloServer({ 
+    typeDefs, 
+    resolvers, 
+    context: () => ({ db }) 
   });
+  const db = await connectDatabase();
 
+  server.start().then(() => {
+    server.applyMiddleware({ app, path: "/api" });
+    app.listen(process.env.PORT);
+    console.log(`[app] : http://localhost:${process.env.PORT}`);
+  });
 }
 
 mount(express());
