@@ -1,11 +1,10 @@
 import React from 'react';
 import { render } from 'react-dom';
+import { NASAImages } from './sections';
 import reportWebVitals from './reportWebVitals';
 
 render(
-  <React.StrictMode>
-    <div>hello world</div>
-  </React.StrictMode>,
+  <NASAImages title="Spacestagram" />,
   document.getElementById('root')
 );
 
