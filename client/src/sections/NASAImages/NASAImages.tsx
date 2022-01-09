@@ -1,12 +1,11 @@
-import { useState, useEffect } from "react";
-import { server } from "../../lib/api";
-import { 
-  NASAImagesData, 
-  likeNASAImageData, 
+import { server, useQuery } from "../../lib/api";
+import {
+  NASAImagesData,
+  likeNASAImageData,
   likeNASAImageVariables,
   unlikeNASAImageData,
   unlikeNASAImageVariables,
-  NASAImage
+  NASAImage,
 } from "./types";
 
 const NASAIMAGES = `
@@ -47,61 +46,66 @@ interface Props {
 }
 
 export const NASAImages = ({ title }: Props) => {
-  const [NASAImages, setNASAImages] = useState<
-    NASAImage[] | null
-  >(null);
+  const { data, loading, error, refetch } =
+    useQuery<NASAImagesData>(NASAIMAGES);
 
-  useEffect(() => {
-    fetchNASAImages();
-  }, []);
-
-  const fetchNASAImages = async () =>{
-    const { data } = 
-      await server.fetch<NASAImagesData>({ query: NASAIMAGES });
-    setNASAImages(data.NASAImages);
-  }
+  const NASAImages = data ? data.NASAImages : null;
 
   const likeNASAImage = async (id: string) => {
-    await server.fetch<likeNASAImageData,
-     likeNASAImageVariables>({
-       query: LIKENASAIMAGE,
-       variables: {
-         id
-       }
-     })
-     fetchNASAImages();
+    await server.fetch<likeNASAImageData, likeNASAImageVariables>({
+      query: LIKENASAIMAGE,
+      variables: {
+        id,
+      },
+    });
+
+    refetch();
   };
 
   const unlikeNASAImage = async (id: string) => {
-    await server.fetch<unlikeNASAImageData,
-     unlikeNASAImageVariables>({
-       query: UNLIKENASAIMAGE,
-       variables: {
-         id
-       }
-     })
-     fetchNASAImages();
+    await server.fetch<unlikeNASAImageData, unlikeNASAImageVariables>(
+      {
+        query: UNLIKENASAIMAGE,
+        variables: {
+          id,
+        },
+      }
+    );
+
+    refetch();
   };
 
-  const NASAImagesList = NASAImages 
-  ? <ul>
+  const NASAImagesList = NASAImages ? (
+    <ul>
       {NASAImages.map((NASAImage) => {
-        return ( 
-          <li key={ NASAImage.id }>
-            { NASAImage.title }
-            { NASAImage.likes }
-            <button onClick={() => likeNASAImage(NASAImage.id)}>Like</button>
-            <button onClick={() => unlikeNASAImage(NASAImage.id)}>Unlike</button>
+        return (
+          <li key={NASAImage.id}>
+            {NASAImage.title}
+            {NASAImage.likes}
+            <button onClick={() => likeNASAImage(NASAImage.id)}>
+              Like
+            </button>
+            <button onClick={() => unlikeNASAImage(NASAImage.id)}>
+              Unlike
+            </button>
           </li>
-        )
+        );
       })}
     </ul>
-  : null;
+  ) : null;
 
-  return ( 
+  if (loading) {
+    return <h2>Loading...</h2>;
+  }
+
+  if (error) {
+    return <h2>Error, please try again later</h2>;
+  }
+
+  return (
     <div>
       <h2>{title}</h2>
-      { NASAImagesList }
+      {NASAImagesList}
     </div>
-  )
-}
+  );
+};
