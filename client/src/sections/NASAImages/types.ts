@@ -1,4 +1,4 @@
-interface NASAImage {
+export interface NASAImage {
   id: string;
   likes: number;
   copyright?: string;

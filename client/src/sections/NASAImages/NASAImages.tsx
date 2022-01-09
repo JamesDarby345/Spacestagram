@@ -1,10 +1,12 @@
+import { useState, useEffect } from "react";
 import { server } from "../../lib/api";
 import { 
   NASAImagesData, 
   likeNASAImageData, 
   likeNASAImageVariables,
   unlikeNASAImageData,
-  unlikeNASAImageVariables
+  unlikeNASAImageVariables,
+  NASAImage
 } from "./types";
 
 const NASAIMAGES = `
@@ -29,60 +31,77 @@ const LIKENASAIMAGE = `
       likes
     }
   }
-`
+`;
 
 const UNLIKENASAIMAGE = `
-  mutation likeNASAImage($id: ID!) {
-    like(id: $id) {
+  mutation unlikeNASAImage($id: ID!) {
+    unlike(id: $id) {
       id
       likes
     }
   }
-`
+`;
+
 interface Props {
   title: string;
 }
 
 export const NASAImages = ({ title }: Props) => {
+  const [NASAImages, setNASAImages] = useState<
+    NASAImage[] | null
+  >(null);
+
+  useEffect(() => {
+    fetchNASAImages();
+  }, []);
+
   const fetchNASAImages = async () =>{
     const { data } = 
       await server.fetch<NASAImagesData>({ query: NASAIMAGES });
-    console.log(data);
+    setNASAImages(data.NASAImages);
   }
 
-  const likeNASAImage = async () => {
-    const { data } = await server.fetch<likeNASAImageData,
+  const likeNASAImage = async (id: string) => {
+    await server.fetch<likeNASAImageData,
      likeNASAImageVariables>({
        query: LIKENASAIMAGE,
        variables: {
-         id: '61d8994b39fb054f6f21b294'
+         id
        }
      })
-     console.log(data);
+     fetchNASAImages();
   };
 
-  const unlikeNASAImage = async () => {
-    const { data } = await server.fetch<unlikeNASAImageData,
+  const unlikeNASAImage = async (id: string) => {
+    await server.fetch<unlikeNASAImageData,
      unlikeNASAImageVariables>({
        query: UNLIKENASAIMAGE,
        variables: {
-         id: '61d8994b39fb054f6f21b294'
+         id
        }
      })
+     fetchNASAImages();
   };
+
+  const NASAImagesList = NASAImages 
+  ? <ul>
+      {NASAImages.map((NASAImage) => {
+        return ( 
+          <li key={ NASAImage.id }>
+            { NASAImage.title }
+            { NASAImage.likes }
+            <button onClick={() => likeNASAImage(NASAImage.id)}>Like</button>
+            <button onClick={() => unlikeNASAImage(NASAImage.id)}>Unlike</button>
+          </li>
+        )
+      })}
+    </ul>
+  : null;
 
   return ( 
     <div>
       <h2>{title}</h2>
-      <button onClick={ fetchNASAImages }>
-        Query NASA Images!
-      </button>
-      <button onClick={ likeNASAImage }>
-        Like a NASA Image!
-      </button>
-      <button onClick={ unlikeNASAImage }>
-        Unlike a NASA Image!
-      </button>
+      { NASAImagesList }
     </div>
   )
 }
