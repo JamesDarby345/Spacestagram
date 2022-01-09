@@ -1,4 +1,4 @@
-import { useQuery, useMutation } from "../../lib/api";
+import { useQuery, useMutation, gql } from "@apollo/client";
 import {
   NASAImagesData,
   likeNASAImageData,
@@ -7,7 +7,7 @@ import {
   unlikeNASAImageVariables,
 } from "./types";
 
-const NASAIMAGES = `
+const NASAIMAGES = gql`
   query NASAImages {
     NASAImages {
       id
@@ -22,7 +22,7 @@ const NASAIMAGES = `
   }
 `;
 
-const LIKENASAIMAGE = `
+const LIKENASAIMAGE = gql`
   mutation likeNASAImage($id: ID!) {
     like(id: $id) {
       id
@@ -31,7 +31,7 @@ const LIKENASAIMAGE = `
   }
 `;
 
-const UNLIKENASAIMAGE = `
+const UNLIKENASAIMAGE = gql`
   mutation unlikeNASAImage($id: ID!) {
     unlike(id: $id) {
       id
@@ -65,12 +65,12 @@ export const NASAImages = ({ title }: Props) => {
   const NASAImages = data ? data.NASAImages : null;
 
   const handeLikeNASAImage = async (id: string) => {
-    await likeNASAImage({ id });
+    await likeNASAImage({ variables: { id } });
     refetch();
   };
 
   const handleUnlikeNASAImage = async (id: string) => {
-    await unlikeNASAImage({ id });
+    await unlikeNASAImage({ variables: { id } });
     refetch();
   };
 
