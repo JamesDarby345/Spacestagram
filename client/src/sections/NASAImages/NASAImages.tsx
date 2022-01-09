@@ -1,11 +1,10 @@
-import { server, useQuery } from "../../lib/api";
+import { useQuery, useMutation } from "../../lib/api";
 import {
   NASAImagesData,
   likeNASAImageData,
   likeNASAImageVariables,
   unlikeNASAImageData,
   unlikeNASAImageVariables,
-  NASAImage,
 } from "./types";
 
 const NASAIMAGES = `
@@ -49,29 +48,29 @@ export const NASAImages = ({ title }: Props) => {
   const { data, loading, error, refetch } =
     useQuery<NASAImagesData>(NASAIMAGES);
 
+  const [
+    likeNASAImage,
+    { loading: likeNASAImageLoading, error: likeNASAImageError },
+  ] = useMutation<likeNASAImageData, likeNASAImageVariables>(
+    LIKENASAIMAGE
+  );
+
+  const [
+    unlikeNASAImage,
+    { loading: unlikeNASAImageLoading, error: unlikeNASAImageError },
+  ] = useMutation<unlikeNASAImageData, unlikeNASAImageVariables>(
+    UNLIKENASAIMAGE
+  );
+
   const NASAImages = data ? data.NASAImages : null;
 
-  const likeNASAImage = async (id: string) => {
-    await server.fetch<likeNASAImageData, likeNASAImageVariables>({
-      query: LIKENASAIMAGE,
-      variables: {
-        id,
-      },
-    });
-
+  const handeLikeNASAImage = async (id: string) => {
+    await likeNASAImage({ id });
     refetch();
   };
 
-  const unlikeNASAImage = async (id: string) => {
-    await server.fetch<unlikeNASAImageData, unlikeNASAImageVariables>(
-      {
-        query: UNLIKENASAIMAGE,
-        variables: {
-          id,
-        },
-      }
-    );
-
+  const handleUnlikeNASAImage = async (id: string) => {
+    await unlikeNASAImage({ id });
     refetch();
   };
 
@@ -82,10 +81,12 @@ export const NASAImages = ({ title }: Props) => {
           <li key={NASAImage.id}>
             {NASAImage.title}
             {NASAImage.likes}
-            <button onClick={() => likeNASAImage(NASAImage.id)}>
+            <button onClick={() => handeLikeNASAImage(NASAImage.id)}>
               Like
             </button>
-            <button onClick={() => unlikeNASAImage(NASAImage.id)}>
+            <button
+              onClick={() => handleUnlikeNASAImage(NASAImage.id)}
+            >
               Unlike
             </button>
           </li>
@@ -102,10 +103,30 @@ export const NASAImages = ({ title }: Props) => {
     return <h2>Error, please try again later</h2>;
   }
 
+  const likeNASAImageErrorMessage = likeNASAImageError ? (
+    <h4>Error liking NASA Image</h4>
+  ) : null;
+
+  const likeNASAImageLoadingMessage = likeNASAImageLoading ? (
+    <h4>like in progress...</h4>
+  ) : null;
+
+  const unlikeNASAImageErrorMessage = unlikeNASAImageError ? (
+    <h4>Error unliking NASA Image</h4>
+  ) : null;
+
+  const unlikeNASAImageLoadingMessage = unlikeNASAImageLoading ? (
+    <h4>unliking in progress...</h4>
+  ) : null;
+
   return (
     <div>
       <h2>{title}</h2>
       {NASAImagesList}
+      {likeNASAImageErrorMessage}
+      {likeNASAImageLoadingMessage}
+      {unlikeNASAImageErrorMessage}
+      {unlikeNASAImageLoadingMessage}
     </div>
   );
 };
