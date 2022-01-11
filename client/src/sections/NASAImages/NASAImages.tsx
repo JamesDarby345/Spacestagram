@@ -1,6 +1,4 @@
 import { useQuery, useMutation, gql } from "@apollo/client";
-import { ftruncateSync } from "fs";
-import { visitFunctionBody } from "typescript";
 import {
   NASAImagesData,
   likeNASAImageData,
@@ -45,11 +43,7 @@ const UNLIKENASAIMAGE = gql`
 const baseUrl = "https://api.nasa.gov/planetary/apod?api_key=";
 const apiKey = "mVHFdj3idfIQM8TVfEycg58TSHvoAdTBzGGJfmia";
 
-interface Props {
-  title: string;
-}
-
-export const NASAImages = ({ title }: Props) => {
+export const NASAImages = () => {
   const { data, loading, error, refetch } =
     useQuery<NASAImagesData>(NASAIMAGES);
 
@@ -78,62 +72,6 @@ export const NASAImages = ({ title }: Props) => {
     await unlikeNASAImage({ variables: { id } });
     refetch();
   };
-
-  // function a(): Promise<string> {
-  //   let response = fetch(baseUrl + apiKey)
-  //     .then((response) => response.json())
-  //     .then((json) => {
-  //       console.log("before json");
-  //       console.log(json);
-  //       displaydata(json);
-  //       return json;
-  //     });
-  //   console.log("before response");
-  //   console.log(response);
-  //   return response;
-  // }
-
-  // console.log("before b");
-  // const b = a();
-  // console.log(b + " this is b");
-  // const z = a();
-  // console.log(z);
-  // console.log(z);
-
-  async function fetchNASAData() {
-    const response = await fetch(baseUrl + apiKey);
-    console.log(response);
-    const data = await response.json();
-    console.log(data);
-    document.getElementById("title")!.innerText = data.title;
-  }
-
-  var zxc = "";
-
-  //fetchNASAData().then((data) => (zxc = data));
-  console.log("before zxc");
-  console.log(zxc);
-
-  // async function f(): Promise<string> {
-  //   const value = await d();
-  //   return value;
-  // }
-
-  console.log("before v");
-  const v = fetchNASAData();
-  console.log(v);
-  // const valueFromV = v.then((value) => {
-  //   return value;
-  // });
-  // console.log(valueFromV);
-  const ti = (
-    <p>
-      {/* {v.then((value) => {
-        value.title;
-      })} */}
-      {zxc}
-    </p>
-  );
 
   const NASAImagesList = NASAImages ? (
     <ul>
@@ -182,9 +120,7 @@ export const NASAImages = ({ title }: Props) => {
 
   return (
     <div>
-      <h2 id="title">{title}</h2>
       {NASAImagesList}
-      {ti}
       {likeNASAImageErrorMessage}
       {likeNASAImageLoadingMessage}
       {unlikeNASAImageErrorMessage}

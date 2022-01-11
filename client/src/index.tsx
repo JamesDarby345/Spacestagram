@@ -1,8 +1,10 @@
 import { render } from "react-dom";
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { ApolloProvider } from "@apollo/react-hooks";
-import { NASAImages } from "./sections";
+import { NASAImages, TodaysImage } from "./sections";
 import reportWebVitals from "./reportWebVitals";
+import "@shopify/polaris/build/esm/styles.css";
+import { AppProvider } from "@shopify/polaris";
 
 const client = new ApolloClient({
   uri: "/api",
@@ -11,7 +13,27 @@ const client = new ApolloClient({
 
 render(
   <ApolloProvider client={client}>
-    <NASAImages title="Spacestagram" />,
+    <AppProvider
+      i18n={{
+        Polaris: {
+          ResourceList: {
+            sortingLabel: "Sort by",
+            defaultItemSingular: "item",
+            defaultItemPlural: "items",
+            showing: "Showing {itemsCount} {resource}",
+            Item: {
+              viewItem: "View details for {itemName}",
+            },
+          },
+          Common: {
+            checkbox: "checkbox",
+          },
+        },
+      }}
+    >
+      <TodaysImage title="Spacestagram" />
+      <NASAImages />
+    </AppProvider>
   </ApolloProvider>,
   document.getElementById("root")
 );
