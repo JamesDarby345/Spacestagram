@@ -16,10 +16,12 @@ export const typeDefs = gql`
 
   type Query {
     NASAImages: [NASAImage!]!
+    NASAImage(date: String): NASAImage
   }
 
   type Mutation {
     like(id: ID!): NASAImage
     unlike(id: ID!): NASAImage
+    addNASAImage(dateToGet: String): NASAImage
   }
 `;
