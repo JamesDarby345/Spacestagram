@@ -27,7 +27,7 @@ export const NASAImageResolvers: IResolvers = {
       });
       if (!NASAImageToReturn) {
         throw new Error(
-          "failed to find NASAImage in database" + args.date
+          "failed to find NASAImage in database " + args.date
         );
       }
       return NASAImageToReturn;
@@ -40,6 +40,39 @@ export const NASAImageResolvers: IResolvers = {
       { db }: { db: Database }
     ) => {
       async function fetchNASAData(dateToGet: string) {
+        //checks if date passed in is valid format
+        function isValidDate(dateToGet: string) {
+          const regEx = /^\d{4}-\d{2}-\d{2}$/;
+          if (!dateToGet.match(regEx)) return false; // Invalid format
+          const d = new Date(dateToGet);
+
+          //no APOD data before 1995-06-16
+          if (d < new Date("1995-06-16")) {
+            return false;
+          }
+
+          const dNum = d.getTime();
+          if (!dNum && dNum !== 0) return false; // NaN value, Invalid date
+          return d.toISOString().slice(0, 10) === dateToGet;
+        }
+
+        if (!isValidDate(dateToGet)) {
+          return dateToGet + " is an invalid date";
+        }
+
+        //blocks duplicate APOD date requests
+        const checkDb = await db.NASAImages.findOne({
+          date: dateToGet,
+        });
+
+        if (checkDb) {
+          return (
+            "The APOD picture for " +
+            dateToGet +
+            " already exists in the database"
+          );
+        }
+
         let APIurl = "";
         const randomLikes = Math.floor(Math.random() * 500);
         if (dateToGet) {
@@ -50,25 +83,19 @@ export const NASAImageResolvers: IResolvers = {
         const response = await fetch(APIurl);
         const data = await response.json();
 
-        //const date = data.date;
-        console.log("data");
-        console.log(data);
-        console.log(data.date);
-        //const newNASAImage: NASAImage = JSON.parse(data);
-        console.log("new nasa image");
-        //console.log(newNASAImage);
-
         const date = data.date;
         const explanation = data.explanation;
-        console.log(explanation);
         const media_type = data.media_type;
         const title = data.title;
         const url = data.url;
         const hdurl = data.hdurl;
         const service_version = data.service_version;
 
-        //TODO: check for duplicates here
-        const insertResult = await db.NASAImages.insertOne({
+        if (!date || !explanation || !title || !url) {
+          return "Missing Required Data";
+        }
+
+        await db.NASAImages.insertOne({
           _id: new ObjectId(),
           likes: randomLikes,
           date,
@@ -79,10 +106,14 @@ export const NASAImageResolvers: IResolvers = {
           hdurl,
           service_version,
         });
-        return insertResult;
+        return (
+          "Succesfully added the APOD picture for " +
+          dateToGet +
+          " to the database"
+        );
       }
-      const insertNewImage = fetchNASAData(dateToGet);
-      return insertNewImage;
+      const responseString = fetchNASAData(dateToGet);
+      return responseString;
     },
     like: async (
       _root: undefined,

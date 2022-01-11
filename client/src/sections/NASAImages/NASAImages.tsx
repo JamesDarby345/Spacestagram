@@ -22,6 +22,21 @@ const NASAIMAGES = gql`
   }
 `;
 
+const NASAIMAGE = gql`
+  query NASAImage($date: string) {
+    NASAImage {
+      id
+      likes
+      copyright
+      date
+      explanation
+      hdurl
+      title
+      url
+    }
+  }
+`;
+
 const LIKENASAIMAGE = gql`
   mutation likeNASAImage($id: ID!) {
     like(id: $id) {

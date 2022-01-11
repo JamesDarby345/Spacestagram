@@ -22,6 +22,6 @@ export const typeDefs = gql`
   type Mutation {
     like(id: ID!): NASAImage
     unlike(id: ID!): NASAImage
-    addNASAImage(dateToGet: String): NASAImage
+    addNASAImage(dateToGet: String): String
   }
 `;
