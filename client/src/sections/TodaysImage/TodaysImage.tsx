@@ -1,16 +1,14 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/img-redundant-alt */
-import { useCallback, useState, useEffect } from "react";
+import "./../../index.css";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, gql } from "@apollo/client";
 import { DatePicker, Heading, MediaCard } from "@shopify/polaris";
 import {
   addNASAImageData,
   addNASAImageVariables,
-  NASAImage,
   NASAImageData,
 } from "../NASAImages/types";
-
-const baseUrl = "https://api.nasa.gov/planetary/apod?api_key=";
-const apiKey = "mVHFdj3idfIQM8TVfEycg58TSHvoAdTBzGGJfmia";
 
 const ADDNASAIMAGE = gql`
   mutation addNASAImage($dateToGet: String) {
@@ -36,14 +34,11 @@ const NASAIMAGE = gql`
 
 interface Props {
   title: string;
+  subTitle: string;
 }
 
-export const TodaysImage = ({ title }: Props) => {
-  const [today, selectedDate] = useState(
-    new Date().toISOString().slice(0, 10)
-  );
-
-  const test = "2001-08-16";
+export const TodaysImage = ({ title, subTitle }: Props) => {
+  const [today] = useState(new Date().toISOString().slice(0, 10));
 
   const [
     addNASAImage,
@@ -51,11 +46,10 @@ export const TodaysImage = ({ title }: Props) => {
   ] = useMutation<addNASAImageData, addNASAImageVariables>(
     ADDNASAIMAGE,
     {
-      variables: { dateToGet: test },
+      variables: { dateToGet: today },
     }
   );
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleAddNASAImage = async (dateToGet: string) => {
     console.log(
       "BEFORE await handle add nasa image" +
@@ -69,28 +63,23 @@ export const TodaysImage = ({ title }: Props) => {
         addNASAImageLoading +
         addNASAImageError
     );
-    //refetch();
+    refetch();
   };
 
   useEffect(() => {
-    handleAddNASAImage(test);
-    console.log(
-      "AFTER handle in useEffect" +
-        addNASAImageLoading +
-        addNASAImageError
-    );
-  }, [addNASAImageError, addNASAImageLoading, handleAddNASAImage]);
+    handleAddNASAImage(today);
+  }, [today]);
 
   const { data: todaysData, refetch } = useQuery<NASAImageData>(
     NASAIMAGE,
     {
-      variables: { date: test },
+      variables: { date: today },
     }
   );
 
   if (!todaysData) {
     console.log("NO DATA");
-    handleAddNASAImage(test);
+    handleAddNASAImage(today);
   }
   console.log(todaysData);
   console.log(todaysData?.NASAImage);
@@ -104,19 +93,26 @@ export const TodaysImage = ({ title }: Props) => {
   }
 
   return (
-    <div>
-      <Heading element="h1">{title}</Heading>
-      <MediaCard title={imageTitle} description={explanation}>
+    <div className="todays_image_wrapper">
+      <h1 className="main_title">{title}</h1>
+      <h5 className="sub_title">{subTitle} </h5>
+      <MediaCard
+        title={imageTitle}
+        description={explanation}
+        portrait={true}
+      >
         <img
           src={url}
-          id="NASAAPOD"
           alt="NASA astronomy picture of the day"
+          width="100%"
+          height="100%"
+          className="main_image"
+          style={{
+            objectFit: "cover",
+            objectPosition: "center",
+          }}
         />
-        <button onClick={() => handleAddNASAImage(test)}>
-          add NASA Image
-        </button>
       </MediaCard>
-      {/* {DatePickerExample()} */}
     </div>
   );
 };

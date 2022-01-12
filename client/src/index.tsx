@@ -31,7 +31,10 @@ render(
         },
       }}
     >
-      <TodaysImage title="Spacestagram" />
+      <TodaysImage
+        title="Spacestagram"
+        subTitle="Brought to you by the NASA Astronomy Picture of the Day (APOD) API!"
+      />
       <NASAImages />
     </AppProvider>
   </ApolloProvider>,
