@@ -35,7 +35,7 @@ render(
         title="Spacestagram"
         subTitle="Brought to you by the NASA Astronomy Picture of the Day (APOD) API!"
       />
-      <NASAImages />
+      {/* <NASAImages /> */}
     </AppProvider>
   </ApolloProvider>,
   document.getElementById("root")
