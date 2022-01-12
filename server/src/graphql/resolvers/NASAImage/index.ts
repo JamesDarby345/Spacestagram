@@ -27,7 +27,8 @@ export const NASAImageResolvers: IResolvers = {
       });
       if (!NASAImageToReturn) {
         throw new Error(
-          "failed to find NASAImage in database " + args.date
+          "Failed to find NASAImage in database with date " +
+            args.date
         );
       }
       return NASAImageToReturn;

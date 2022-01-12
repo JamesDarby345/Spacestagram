@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/img-redundant-alt */
 import { useQuery, useMutation, gql } from "@apollo/client";
 import {
   NASAImagesData,
@@ -93,8 +94,11 @@ export const NASAImages = () => {
       {NASAImages.map((NASAImage) => {
         return (
           <li key={NASAImage.id}>
-            {NASAImage.title}
-            {NASAImage.likes}
+            {NASAImage.title} {NASAImage.likes} {NASAImage.date}
+            <img
+              src={NASAImage.url}
+              alt="NASA astronomy picture of the day"
+            ></img>
             <button onClick={() => handeLikeNASAImage(NASAImage.id)}>
               Like
             </button>

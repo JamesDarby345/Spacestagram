@@ -15,6 +15,18 @@ export interface NASAImagesData {
   NASAImages: NASAImage[];
 }
 
+export interface NASAImageData {
+  NASAImage: NASAImage;
+}
+
+export interface addNASAImageData {
+  response: string;
+}
+
+export interface addNASAImageVariables {
+  dateToGet: string;
+}
+
 export interface likeNASAImageData {
   like: NASAImage;
 }
