@@ -3,12 +3,7 @@
 import "./../../index.css";
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, gql } from "@apollo/client";
-import {
-  Button,
-  DatePicker,
-  Heading,
-  MediaCard,
-} from "@shopify/polaris";
+import { Button, DatePicker, Heading, MediaCard } from "@shopify/polaris";
 import {
   addNASAImageData,
   addNASAImageVariables,
@@ -18,6 +13,7 @@ import {
   unlikeNASAImageVariables,
   NASAImageData,
 } from "../NASAImages/types";
+import { buildExecutionContext } from "graphql/execution/execute";
 
 const ADDNASAIMAGE = gql`
   mutation addNASAImage($dateToGet: String) {
@@ -65,15 +61,20 @@ interface Props {
 }
 
 export const TodaysImage = ({ title, subTitle }: Props) => {
-  const [today] = useState(new Date().toISOString().slice(0, 10));
-  var liked = true;
+  const [liked, setLiked] = useState("Like");
+  //Because I dont want to request an image that NASA hasnt
+  //added to the API yet, this code sets the latest date to get to
+  //be the date that is {hoursAgo} hours ago so the first image doesnt
+  //end up errored out as there is no data yet.
+  const hoursAgo = 12;
+  var today = new Date(new Date().getTime() - hoursAgo * 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 10);
 
   const [
     likeNASAImage,
     { loading: likeNASAImageLoading, error: likeNASAImageError },
-  ] = useMutation<likeNASAImageData, likeNASAImageVariables>(
-    LIKENASAIMAGE
-  );
+  ] = useMutation<likeNASAImageData, likeNASAImageVariables>(LIKENASAIMAGE);
 
   const [
     unlikeNASAImage,
@@ -85,22 +86,31 @@ export const TodaysImage = ({ title, subTitle }: Props) => {
   const [
     addNASAImage,
     { loading: addNASAImageLoading, error: addNASAImageError },
-  ] = useMutation<addNASAImageData, addNASAImageVariables>(
-    ADDNASAIMAGE,
-    {
-      variables: { dateToGet: today },
+  ] = useMutation<addNASAImageData, addNASAImageVariables>(ADDNASAIMAGE, {
+    variables: { dateToGet: today },
+  });
+
+  const handeLikingNASAImage = async (id: string) => {
+    if (liked === "Like") {
+      handeLikeNASAImage(id);
+      setLiked("Unlike");
+    } else {
+      handleUnlikeNASAImage(id);
+      setLiked("Like");
     }
-  );
+  };
+
+  useEffect(() => {
+    console.log(liked);
+  }, [liked]);
 
   const handeLikeNASAImage = async (id: string) => {
     await likeNASAImage({ variables: { id } });
-    liked = true;
     refetch();
   };
 
   const handleUnlikeNASAImage = async (id: string) => {
     await unlikeNASAImage({ variables: { id } });
-    liked = false;
     refetch();
   };
 
@@ -113,15 +123,11 @@ export const TodaysImage = ({ title, subTitle }: Props) => {
     handleAddNASAImage(today);
   }, []);
 
-  const { data: todaysData, refetch } = useQuery<NASAImageData>(
-    NASAIMAGE,
-    {
-      variables: { date: today },
-    }
-  );
+  const { data: todaysData, refetch } = useQuery<NASAImageData>(NASAIMAGE, {
+    variables: { date: today },
+  });
 
   if (!todaysData) {
-    console.log("NO DATA");
     handleAddNASAImage(today);
   }
 
@@ -135,49 +141,11 @@ export const TodaysImage = ({ title, subTitle }: Props) => {
     url = todaysData?.NASAImage.url;
   }
 
-  // if (loading) {
-  //   return <h2>Loading...</h2>;
-  // }
-
-  // if (error) {
-  //   return <h2>Error, please try again later</h2>;
-  // }
-
-  // const likeNASAImageErrorMessage = likeNASAImageError ? (
-  //   <h4>Error liking NASA Image</h4>
-  // ) : null;
-
-  // const likeNASAImageLoadingMessage = likeNASAImageLoading ? (
-  //   <h4>like in progress...</h4>
-  // ) : null;
-
-  // const unlikeNASAImageErrorMessage = unlikeNASAImageError ? (
-  //   <h4>Error unliking NASA Image</h4>
-  // ) : null;
-
-  // const unlikeNASAImageLoadingMessage = unlikeNASAImageLoading ? (
-  //   <h4>unliking in progress...</h4>
-  // ) : null;
-
-  const likeButton = liked ? (
-    <Button onClick={() => handleUnlikeNASAImage(NASAImageId)}>
-      Unlike
-    </Button>
-  ) : (
-    <Button onClick={() => handeLikeNASAImage(NASAImageId)}>
-      Like
-    </Button>
-  );
-
   return (
     <div className="todays_image_wrapper">
       <h1 className="main_title">{title}</h1>
       <h5 className="sub_title">{subTitle} </h5>
-      <MediaCard
-        title={imageTitle}
-        description={explanation}
-        portrait={true}
-      >
+      <MediaCard title={imageTitle} description={explanation} portrait={true}>
         <img
           src={url}
           alt="NASA astronomy picture of the day"
@@ -191,7 +159,9 @@ export const TodaysImage = ({ title, subTitle }: Props) => {
         />
         <div className="like_button_wrapper">
           <span className="like_count">{likeCount}</span>
-          {likeButton}
+          <Button onClick={() => handeLikingNASAImage(NASAImageId)}>
+            {liked}
+          </Button>
         </div>
       </MediaCard>
     </div>
