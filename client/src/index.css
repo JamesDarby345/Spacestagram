@@ -17,6 +17,7 @@
 
 .like_button_wrapper {
   margin-left: 25px;
+  margin-right: 25px;
   margin-top: 25px;
 }
 
@@ -25,7 +26,13 @@
   margin-right: 15px;
 }
 
-.todays_image_wrapper {
+.video_link {
+  margin-left: 15px;
+  margin-top: 10px;
+  font-size: 18px;
+}
+
+.main_wrapper {
   width: 95%;
   height: 100%;
   margin: auto;
@@ -33,19 +40,19 @@
 }
 
 @media (min-width: 700px) {
-  .todays_image_wrapper {
+  .main_wrapper {
     width: 70%;
   }
 }
 
 @media (min-width: 1000px) {
-  .todays_image_wrapper {
+  .main_wrapper {
     width: 45%;
   }
 }
 
 @media (min-width: 2000px) {
-  .todays_image_wrapper {
+  .main_wrapper {
     width: 40%;
   }
 }

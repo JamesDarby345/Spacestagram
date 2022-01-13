@@ -27,8 +27,7 @@ export const NASAImageResolvers: IResolvers = {
       });
       if (!NASAImageToReturn) {
         throw new Error(
-          "Failed to find NASAImage in database with date " +
-            args.date
+          "Failed to find NASAImage in database with date " + args.date
         );
       }
       return NASAImageToReturn;
@@ -94,19 +93,20 @@ export const NASAImageResolvers: IResolvers = {
 
         if (!date || !explanation || !title || !url) {
           return "Missing Required Data";
+        } else {
+          await db.NASAImages.insertOne({
+            _id: new ObjectId(),
+            likes: randomLikes,
+            date,
+            explanation,
+            media_type,
+            title,
+            url,
+            hdurl,
+            service_version,
+          });
         }
 
-        await db.NASAImages.insertOne({
-          _id: new ObjectId(),
-          likes: randomLikes,
-          date,
-          explanation,
-          media_type,
-          title,
-          url,
-          hdurl,
-          service_version,
-        });
         return (
           "Succesfully added the APOD picture for " +
           dateToGet +

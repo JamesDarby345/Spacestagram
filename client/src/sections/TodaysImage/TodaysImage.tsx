@@ -1,9 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/img-redundant-alt */
 import "./../../index.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useQuery, useMutation, gql } from "@apollo/client";
-import { Button, DatePicker, Heading, MediaCard } from "@shopify/polaris";
+import { Button, DatePicker, Heading, Link, MediaCard } from "@shopify/polaris";
 import {
   addNASAImageData,
   addNASAImageVariables,
@@ -61,15 +61,27 @@ interface Props {
 }
 
 export const TodaysImage = ({ title, subTitle }: Props) => {
-  const [liked, setLiked] = useState("Like");
-  //Because I dont want to request an image that NASA hasnt
-  //added to the API yet, this code sets the latest date to get to
-  //be the date that is {hoursAgo} hours ago so the first image doesnt
-  //end up errored out as there is no data yet.
   const hoursAgo = 12;
-  var today = new Date(new Date().getTime() - hoursAgo * 60 * 60 * 1000)
-    .toISOString()
-    .slice(0, 10);
+  const [liked, setLiked] = useState("Like");
+
+  //default is 12 ({hoursAgo}) hours past current time to prevent
+  //requesting data NASA hasnt added to the API yet
+  const [selectedDate, setSelectedDate] = useState({
+    start: new Date(new Date().getTime() - hoursAgo * 60 * 60 * 1000),
+    end: new Date(new Date().getTime() - hoursAgo * 60 * 60 * 1000),
+  });
+
+  var dateToDisplay = selectedDate.start.toISOString().slice(0, 10);
+
+  useEffect(() => {
+    dateToDisplay = selectedDate.start.toISOString().slice(0, 10);
+  }, [selectedDate]);
+
+  console.log(new Date(dateToDisplay));
+  const [{ month, year }, setDate] = useState({
+    month: (dateToDisplay.slice(5, 7) as unknown as number) - 1,
+    year: dateToDisplay.slice(0, 4) as unknown as number,
+  });
 
   const [
     likeNASAImage,
@@ -87,7 +99,7 @@ export const TodaysImage = ({ title, subTitle }: Props) => {
     addNASAImage,
     { loading: addNASAImageLoading, error: addNASAImageError },
   ] = useMutation<addNASAImageData, addNASAImageVariables>(ADDNASAIMAGE, {
-    variables: { dateToGet: today },
+    variables: { dateToGet: dateToDisplay },
   });
 
   const handeLikingNASAImage = async (id: string) => {
@@ -100,10 +112,6 @@ export const TodaysImage = ({ title, subTitle }: Props) => {
     }
   };
 
-  useEffect(() => {
-    console.log(liked);
-  }, [liked]);
-
   const handeLikeNASAImage = async (id: string) => {
     await likeNASAImage({ variables: { id } });
     refetch();
@@ -115,55 +123,91 @@ export const TodaysImage = ({ title, subTitle }: Props) => {
   };
 
   const handleAddNASAImage = async (dateToGet: string) => {
-    await addNASAImage({ variables: { dateToGet } });
+    const res = await addNASAImage({ variables: { dateToGet } });
+    console.log(res);
     refetch();
   };
 
   useEffect(() => {
-    handleAddNASAImage(today);
+    handleAddNASAImage(dateToDisplay);
   }, []);
 
-  const { data: todaysData, refetch } = useQuery<NASAImageData>(NASAIMAGE, {
-    variables: { date: today },
+  const handleMonthChange = useCallback(
+    (month, year) => setDate({ month, year }),
+    []
+  );
+
+  const { data: fetchedData, refetch } = useQuery<NASAImageData>(NASAIMAGE, {
+    variables: { date: dateToDisplay },
   });
 
-  if (!todaysData) {
-    handleAddNASAImage(today);
+  if (!fetchedData) {
+    handleAddNASAImage(dateToDisplay);
   }
 
-  const NASAImageId = todaysData?.NASAImage.id || "";
-  const likeCount = todaysData?.NASAImage.likes || "";
+  const NASAImageId = fetchedData?.NASAImage.id || "";
+  const copyright = fetchedData?.NASAImage.copyright || "";
+  const likeCount = fetchedData?.NASAImage.likes || "";
   const imageTitle =
-    todaysData?.NASAImage.title + " - " + todaysData?.NASAImage.date;
-  const explanation = todaysData?.NASAImage.explanation || "";
-  var url = "";
-  if (todaysData?.NASAImage.media_type === "image") {
-    url = todaysData?.NASAImage.url;
+    fetchedData?.NASAImage.title + " - " + fetchedData?.NASAImage.date;
+  const explanation = fetchedData?.NASAImage.explanation || "";
+  var url = fetchedData?.NASAImage.url;
+
+  var NASAImageHTMLTag = (
+    <img
+      src={url}
+      alt="NASA astronomy picture of the day"
+      width="100%"
+      height="100%"
+      className="main_image"
+      style={{
+        objectFit: "cover",
+        objectPosition: "center",
+      }}
+    />
+  );
+
+  if (fetchedData?.NASAImage.media_type === "video") {
+    NASAImageHTMLTag = (
+      <div className="video_link">
+        <Link url={url}>Link to today's video.</Link>
+      </div>
+    );
   }
+
+  const NASAImageToShow = (
+    <MediaCard title={imageTitle} description={explanation} portrait={true}>
+      {NASAImageHTMLTag}
+      <div className="like_button_wrapper">
+        <span className="like_count">{likeCount}</span>
+        <Button onClick={() => handeLikingNASAImage(NASAImageId)}>
+          {liked}
+        </Button>
+      </div>
+      {copyright}
+    </MediaCard>
+  );
+
+  const datePicker = (
+    <div className="date_picker">
+      <DatePicker
+        month={month}
+        year={year}
+        onChange={setSelectedDate}
+        onMonthChange={handleMonthChange}
+        selected={selectedDate}
+        disableDatesBefore={new Date("1995-06-16")}
+        disableDatesAfter={new Date()}
+      />
+    </div>
+  );
 
   return (
-    <div className="todays_image_wrapper">
+    <div className="main_wrapper">
       <h1 className="main_title">{title}</h1>
       <h5 className="sub_title">{subTitle} </h5>
-      <MediaCard title={imageTitle} description={explanation} portrait={true}>
-        <img
-          src={url}
-          alt="NASA astronomy picture of the day"
-          width="100%"
-          height="100%"
-          className="main_image"
-          style={{
-            objectFit: "cover",
-            objectPosition: "center",
-          }}
-        />
-        <div className="like_button_wrapper">
-          <span className="like_count">{likeCount}</span>
-          <Button onClick={() => handeLikingNASAImage(NASAImageId)}>
-            {liked}
-          </Button>
-        </div>
-      </MediaCard>
+      {datePicker}
+      {NASAImageToShow}
     </div>
   );
 };
