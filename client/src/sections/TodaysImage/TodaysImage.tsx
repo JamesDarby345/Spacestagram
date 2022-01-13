@@ -195,8 +195,8 @@ export const TodaysImage = ({ title, subTitle }: Props) => {
         <Button onClick={() => handeLikingNASAImage(NASAImageId)}>
           {liked}
         </Button>
+        <span className="copyright">Copyright: {copyright}</span>
       </div>
-      {copyright}
     </MediaCard>
   );
 
