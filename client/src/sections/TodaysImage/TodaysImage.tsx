@@ -3,10 +3,19 @@
 import "./../../index.css";
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, gql } from "@apollo/client";
-import { DatePicker, Heading, MediaCard } from "@shopify/polaris";
+import {
+  Button,
+  DatePicker,
+  Heading,
+  MediaCard,
+} from "@shopify/polaris";
 import {
   addNASAImageData,
   addNASAImageVariables,
+  likeNASAImageData,
+  likeNASAImageVariables,
+  unlikeNASAImageData,
+  unlikeNASAImageVariables,
   NASAImageData,
 } from "../NASAImages/types";
 
@@ -32,6 +41,24 @@ const NASAIMAGE = gql`
   }
 `;
 
+const LIKENASAIMAGE = gql`
+  mutation likeNASAImage($id: ID!) {
+    like(id: $id) {
+      id
+      likes
+    }
+  }
+`;
+
+const UNLIKENASAIMAGE = gql`
+  mutation unlikeNASAImage($id: ID!) {
+    unlike(id: $id) {
+      id
+      likes
+    }
+  }
+`;
+
 interface Props {
   title: string;
   subTitle: string;
@@ -39,6 +66,21 @@ interface Props {
 
 export const TodaysImage = ({ title, subTitle }: Props) => {
   const [today] = useState(new Date().toISOString().slice(0, 10));
+  var liked = true;
+
+  const [
+    likeNASAImage,
+    { loading: likeNASAImageLoading, error: likeNASAImageError },
+  ] = useMutation<likeNASAImageData, likeNASAImageVariables>(
+    LIKENASAIMAGE
+  );
+
+  const [
+    unlikeNASAImage,
+    { loading: unlikeNASAImageLoading, error: unlikeNASAImageError },
+  ] = useMutation<unlikeNASAImageData, unlikeNASAImageVariables>(
+    UNLIKENASAIMAGE
+  );
 
   const [
     addNASAImage,
@@ -50,25 +92,26 @@ export const TodaysImage = ({ title, subTitle }: Props) => {
     }
   );
 
+  const handeLikeNASAImage = async (id: string) => {
+    await likeNASAImage({ variables: { id } });
+    liked = true;
+    refetch();
+  };
+
+  const handleUnlikeNASAImage = async (id: string) => {
+    await unlikeNASAImage({ variables: { id } });
+    liked = false;
+    refetch();
+  };
+
   const handleAddNASAImage = async (dateToGet: string) => {
-    console.log(
-      "BEFORE await handle add nasa image" +
-        addNASAImageLoading +
-        addNASAImageError +
-        dateToGet
-    );
     await addNASAImage({ variables: { dateToGet } });
-    console.log(
-      "AFTER await handle add nasa image" +
-        addNASAImageLoading +
-        addNASAImageError
-    );
     refetch();
   };
 
   useEffect(() => {
     handleAddNASAImage(today);
-  }, [today]);
+  }, []);
 
   const { data: todaysData, refetch } = useQuery<NASAImageData>(
     NASAIMAGE,
@@ -81,16 +124,50 @@ export const TodaysImage = ({ title, subTitle }: Props) => {
     console.log("NO DATA");
     handleAddNASAImage(today);
   }
-  console.log(todaysData);
-  console.log(todaysData?.NASAImage);
-  console.log(todaysData?.NASAImage.title);
 
-  const imageTitle = todaysData?.NASAImage.title;
+  const NASAImageId = todaysData?.NASAImage.id || "";
+  const likeCount = todaysData?.NASAImage.likes || "";
+  const imageTitle =
+    todaysData?.NASAImage.title + " - " + todaysData?.NASAImage.date;
   const explanation = todaysData?.NASAImage.explanation || "";
   var url = "";
   if (todaysData?.NASAImage.media_type === "image") {
     url = todaysData?.NASAImage.url;
   }
+
+  // if (loading) {
+  //   return <h2>Loading...</h2>;
+  // }
+
+  // if (error) {
+  //   return <h2>Error, please try again later</h2>;
+  // }
+
+  // const likeNASAImageErrorMessage = likeNASAImageError ? (
+  //   <h4>Error liking NASA Image</h4>
+  // ) : null;
+
+  // const likeNASAImageLoadingMessage = likeNASAImageLoading ? (
+  //   <h4>like in progress...</h4>
+  // ) : null;
+
+  // const unlikeNASAImageErrorMessage = unlikeNASAImageError ? (
+  //   <h4>Error unliking NASA Image</h4>
+  // ) : null;
+
+  // const unlikeNASAImageLoadingMessage = unlikeNASAImageLoading ? (
+  //   <h4>unliking in progress...</h4>
+  // ) : null;
+
+  const likeButton = liked ? (
+    <Button onClick={() => handleUnlikeNASAImage(NASAImageId)}>
+      Unlike
+    </Button>
+  ) : (
+    <Button onClick={() => handeLikeNASAImage(NASAImageId)}>
+      Like
+    </Button>
+  );
 
   return (
     <div className="todays_image_wrapper">
@@ -112,6 +189,10 @@ export const TodaysImage = ({ title, subTitle }: Props) => {
             objectPosition: "center",
           }}
         />
+        <div className="like_button_wrapper">
+          <span className="like_count">{likeCount}</span>
+          {likeButton}
+        </div>
       </MediaCard>
     </div>
   );
