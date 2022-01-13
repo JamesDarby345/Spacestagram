@@ -158,7 +158,10 @@ export const TodaysImage = ({ title, subTitle }: Props) => {
   }
 
   const NASAImageId = fetchedData?.NASAImage.id || "";
-  const copyright = fetchedData?.NASAImage.copyright || "";
+  var copyright = fetchedData?.NASAImage.copyright || "";
+  if (copyright && copyright !== "") {
+    copyright = "Copyright: " + copyright;
+  }
   const likeCount = fetchedData?.NASAImage.likes || "";
   const imageTitle =
     fetchedData?.NASAImage.title + " - " + fetchedData?.NASAImage.date;
@@ -195,7 +198,7 @@ export const TodaysImage = ({ title, subTitle }: Props) => {
         <Button onClick={() => handeLikingNASAImage(NASAImageId)}>
           {liked}
         </Button>
-        <span className="copyright">Copyright: {copyright}</span>
+        <span className="copyright">{copyright}</span>
       </div>
     </MediaCard>
   );
