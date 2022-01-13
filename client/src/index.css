@@ -6,7 +6,7 @@
 
 .sub_title {
   color: rgb(121, 119, 119);
-  margin-bottom: 5px;
+  margin-bottom: 10px;
 }
 
 .main_image {
@@ -15,7 +15,28 @@
   margin: auto;
 }
 
-.todays_image_wrapper {
+.like_button_wrapper {
+  margin-left: 25px;
+  margin-right: 25px;
+  margin-top: 25px;
+}
+
+.like_count {
+  color: rgb(121, 119, 119);
+  margin-right: 15px;
+}
+
+.video_link {
+  margin-left: 15px;
+  margin-top: 10px;
+  font-size: 18px;
+}
+
+.date_picker {
+  margin-bottom: 10px;
+}
+
+.main_wrapper {
   width: 95%;
   height: 100%;
   margin: auto;
@@ -23,19 +44,19 @@
 }
 
 @media (min-width: 700px) {
-  .todays_image_wrapper {
+  .main_wrapper {
     width: 70%;
   }
 }
 
 @media (min-width: 1000px) {
-  .todays_image_wrapper {
+  .main_wrapper {
     width: 45%;
   }
 }
 
 @media (min-width: 2000px) {
-  .todays_image_wrapper {
+  .main_wrapper {
     width: 40%;
   }
 }
