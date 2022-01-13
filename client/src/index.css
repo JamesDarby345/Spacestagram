@@ -32,6 +32,10 @@
   font-size: 18px;
 }
 
+.date_picker {
+  margin-bottom: 10px;
+}
+
 .main_wrapper {
   width: 95%;
   height: 100%;

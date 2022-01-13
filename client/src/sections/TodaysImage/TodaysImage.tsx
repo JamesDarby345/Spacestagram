@@ -3,7 +3,15 @@
 import "./../../index.css";
 import { useState, useEffect, useCallback } from "react";
 import { useQuery, useMutation, gql } from "@apollo/client";
-import { Button, DatePicker, Heading, Link, MediaCard } from "@shopify/polaris";
+import {
+  Button,
+  Card,
+  Collapsible,
+  DatePicker,
+  Link,
+  MediaCard,
+  Stack,
+} from "@shopify/polaris";
 import {
   addNASAImageData,
   addNASAImageVariables,
@@ -83,6 +91,8 @@ export const TodaysImage = ({ title, subTitle }: Props) => {
     year: dateToDisplay.slice(0, 4) as unknown as number,
   });
 
+  const [open, setOpen] = useState(false);
+
   const [
     likeNASAImage,
     { loading: likeNASAImageLoading, error: likeNASAImageError },
@@ -101,6 +111,8 @@ export const TodaysImage = ({ title, subTitle }: Props) => {
   ] = useMutation<addNASAImageData, addNASAImageVariables>(ADDNASAIMAGE, {
     variables: { dateToGet: dateToDisplay },
   });
+
+  const handleToggle = useCallback(() => setOpen((open) => !open), []);
 
   const handeLikingNASAImage = async (id: string) => {
     if (liked === "Like") {
@@ -190,15 +202,30 @@ export const TodaysImage = ({ title, subTitle }: Props) => {
 
   const datePicker = (
     <div className="date_picker">
-      <DatePicker
-        month={month}
-        year={year}
-        onChange={setSelectedDate}
-        onMonthChange={handleMonthChange}
-        selected={selectedDate}
-        disableDatesBefore={new Date("1995-06-16")}
-        disableDatesAfter={new Date()}
-      />
+      <Stack vertical>
+        <Button
+          onClick={handleToggle}
+          ariaExpanded={open}
+          ariaControls="basic-collapsible"
+        >
+          Pick Date
+        </Button>
+        <Collapsible
+          id={"basic-collapsible"}
+          open={open}
+          transition={{ duration: "500ms", timingFunction: "ease-in-out" }}
+        >
+          <DatePicker
+            month={month}
+            year={year}
+            onChange={setSelectedDate}
+            onMonthChange={handleMonthChange}
+            selected={selectedDate}
+            disableDatesBefore={new Date("1995-06-16")}
+            disableDatesAfter={new Date()}
+          />
+        </Collapsible>
+      </Stack>
     </div>
   );
 
