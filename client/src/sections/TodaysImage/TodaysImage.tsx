@@ -21,7 +21,7 @@ import {
   unlikeNASAImageVariables,
   NASAImageData,
 } from "../NASAImages/types";
-import { buildExecutionContext } from "graphql/execution/execute";
+import { NASAImageSkeleton } from "./NASAImageSkeleton";
 
 const ADDNASAIMAGE = gql`
   mutation addNASAImage($dateToGet: String) {
@@ -83,9 +83,9 @@ export const TodaysImage = ({ title, subTitle }: Props) => {
 
   useEffect(() => {
     dateToDisplay = selectedDate.start.toISOString().slice(0, 10);
+    setLiked("Like");
   }, [selectedDate]);
 
-  console.log(new Date(dateToDisplay));
   const [{ month, year }, setDate] = useState({
     month: (dateToDisplay.slice(5, 7) as unknown as number) - 1,
     year: dateToDisplay.slice(0, 4) as unknown as number,
@@ -190,7 +190,7 @@ export const TodaysImage = ({ title, subTitle }: Props) => {
     );
   }
 
-  const NASAImageToShow = (
+  const NASAImageToShow = !addNASAImageLoading ? (
     <MediaCard title={imageTitle} description={explanation} portrait={true}>
       {NASAImageHTMLTag}
       <div className="like_button_wrapper">
@@ -201,6 +201,8 @@ export const TodaysImage = ({ title, subTitle }: Props) => {
         <span className="copyright">{copyright}</span>
       </div>
     </MediaCard>
+  ) : (
+    <NASAImageSkeleton />
   );
 
   const datePicker = (

@@ -1,7 +1,7 @@
 import { render } from "react-dom";
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { ApolloProvider } from "@apollo/react-hooks";
-import { NASAImages, TodaysImage } from "./sections";
+import { TodaysImage } from "./sections";
 import reportWebVitals from "./reportWebVitals";
 import "@shopify/polaris/build/esm/styles.css";
 import { AppProvider } from "@shopify/polaris";
@@ -19,7 +19,6 @@ render(
         title="Spacestagram"
         subTitle="Brought to you by the NASA Astronomy Picture of the Day (APOD) API!"
       />
-      {/* <NASAImages /> */}
     </AppProvider>
   </ApolloProvider>,
   document.getElementById("root")
