@@ -83,6 +83,7 @@ export const TodaysImage = ({ title, subTitle }: Props) => {
 
   useEffect(() => {
     dateToDisplay = selectedDate.start.toISOString().slice(0, 10);
+    setLiked("Like");
   }, [selectedDate]);
 
   console.log(new Date(dateToDisplay));
