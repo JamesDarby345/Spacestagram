@@ -42,7 +42,7 @@ export const NASAImageResolvers: IResolvers = {
       async function fetchNASAData(dateToGet: string) {
         //checks if date passed in is valid format
         function isValidDate(dateToGet: string) {
-          const regEx = /^\d{4}-\d{2}-\d{2}$/;
+          const regEx = /^\d{4}-\d{2}-\d{2}$/; //####-##-## format
           if (!dateToGet.match(regEx)) return false; // Invalid format
           const d = new Date(dateToGet);
 
@@ -80,6 +80,8 @@ export const NASAImageResolvers: IResolvers = {
         } else {
           APIurl = baseUrl + apiKey;
         }
+
+        //gets data from NASA API
         const response = await fetch(APIurl);
         const data = await response.json();
 
@@ -113,6 +115,7 @@ export const NASAImageResolvers: IResolvers = {
           " to the database"
         );
       }
+
       const responseString = fetchNASAData(dateToGet);
       return responseString;
     },
@@ -129,7 +132,7 @@ export const NASAImageResolvers: IResolvers = {
         throw new Error("failed to like NASAImage" + id);
       }
 
-      likedNASAImage.likes = likedNASAImage.likes + 1;
+      likedNASAImage.likes = ++likedNASAImage.likes;
       db.NASAImages.updateOne(
         { _id: new ObjectId(id) },
         { $set: { likes: likedNASAImage.likes } }
@@ -149,7 +152,7 @@ export const NASAImageResolvers: IResolvers = {
         throw new Error("failed to unlike NASAImage");
       }
 
-      unlikedNASAImage.likes = unlikedNASAImage.likes - 1;
+      unlikedNASAImage.likes = --unlikedNASAImage.likes;
       db.NASAImages.updateOne(
         { _id: new ObjectId(id) },
         { $set: { likes: unlikedNASAImage.likes } }

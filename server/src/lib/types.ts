@@ -13,7 +13,6 @@ export interface NASAImage {
   url: string;
 }
 
-
 export interface Database {
   NASAImages: Collection<NASAImage>;
 }

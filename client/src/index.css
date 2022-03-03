@@ -82,3 +82,32 @@
     width: 40%;
   }
 }
+@media (min-width: 2500px) {
+  .main_wrapper {
+    width: 35%;
+  }
+}
+
+@media (min-width: 3000px) {
+  .main_wrapper {
+    width: 30%;
+  }
+}
+
+@media (min-width: 3500px) {
+  .main_wrapper {
+    width: 27%;
+  }
+}
+
+@media (min-width: 4000px) {
+  .main_wrapper {
+    width: 23%;
+  }
+}
+
+@media (min-width: 4500px) {
+  .main_wrapper {
+    width: 20%;
+  }
+}
