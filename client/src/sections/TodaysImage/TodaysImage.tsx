@@ -21,6 +21,8 @@ import {
   unlikeNASAImageData,
   unlikeNASAImageVariables,
   NASAImageData,
+  postCommentNASAImageData,
+  postCommentNASAImageVariables,
 } from "../NASAImages/types";
 import { NASAImageSkeleton } from "./NASAImageSkeleton";
 
@@ -61,6 +63,15 @@ const UNLIKENASAIMAGE = gql`
     unlike(id: $id) {
       id
       likes
+    }
+  }
+`;
+
+const POSTCOMMENTNASAIMAGE = gql`
+  mutation postCommentNASAImage($id: ID!, $comment: String!) {
+    postComment(id: $id, comment: $comment) {
+      id
+      comments
     }
   }
 `;
@@ -114,6 +125,11 @@ export const TodaysImage = ({ title, subTitle }: Props) => {
     variables: { dateToGet: dateToDisplay },
   });
 
+  const [postCommentNASAImage] = useMutation<
+    postCommentNASAImageData,
+    postCommentNASAImageVariables
+  >(POSTCOMMENTNASAIMAGE);
+
   const handleToggle = useCallback(() => setOpen((open) => !open), []);
 
   const handeLikingNASAImage = async (id: string) => {
@@ -137,8 +153,13 @@ export const TodaysImage = ({ title, subTitle }: Props) => {
   };
 
   const handleAddNASAImage = async (dateToGet: string) => {
-    const result = await addNASAImage({ variables: { dateToGet } });
-    console.log(result);
+    await addNASAImage({ variables: { dateToGet } });
+    refetch();
+  };
+
+  const handlePostingComment = async (id: string, comment: string) => {
+    await postCommentNASAImage({ variables: { id, comment } });
+    setCommentValue("");
     refetch();
   };
 
@@ -161,7 +182,7 @@ export const TodaysImage = ({ title, subTitle }: Props) => {
 
   const [commentValue, setCommentValue] = useState("");
 
-  const handleComment = useCallback(
+  const handleCommentEntry = useCallback(
     (newValue) => setCommentValue(newValue),
     []
   );
@@ -175,25 +196,33 @@ export const TodaysImage = ({ title, subTitle }: Props) => {
           labelHidden={true}
           value={commentValue}
           placeholder="Add a comment"
-          onChange={handleComment}
+          onChange={handleCommentEntry}
           multiline={1}
           autoComplete="off"
           spellCheck={true}
         />
       </div>
       <div className="post_comment_button">
-        <Button disabled={commentValue.length <= 0}>Post</Button>
+        <Button
+          disabled={commentValue.length <= 0}
+          onClick={() => handlePostingComment(NASAImageId, commentValue)}
+        >
+          Post
+        </Button>
       </div>
     </div>
   );
 
   var commentSpace = (
     <div>
-      {comments?.map((comment) => (
-        <Card key={comment}>
-          <div className="comment">{comment}</div>
-        </Card>
-      ))}
+      {comments
+        ?.slice(0)
+        .reverse()
+        .map((comment) => (
+          <Card key={comment}>
+            <div className="comment">{comment}</div>
+          </Card>
+        ))}
     </div>
   );
 
@@ -242,9 +271,7 @@ export const TodaysImage = ({ title, subTitle }: Props) => {
           <span className="copyright">{copyright}</span>
         </div>
       </MediaCard>
-      <div className="post_comment">
-        <Card>{commentEntry}</Card>
-      </div>
+      <div className="post_comment">{commentEntry}</div>
 
       {commentSpace}
     </div>

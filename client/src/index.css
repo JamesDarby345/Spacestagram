@@ -65,19 +65,17 @@
 }
 
 .post_comment {
-  white-space: nowrap;
-  display: inline-block;
   width: 100%;
   margin-top: 15px;
   margin-bottom: 15px;
 }
 .post_comment_text {
   display: inline-block;
-  width: 90%;
+  width: 88%;
 }
 .post_comment_button {
   display: inline-block;
-  width: 10%;
+  width: 12%;
 }
 
 .main_wrapper {

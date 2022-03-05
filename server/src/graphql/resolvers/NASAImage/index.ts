@@ -80,11 +80,7 @@ export const NASAImageResolvers: IResolvers = {
         } else {
           APIurl = baseUrl + apiKey;
         }
-        const comments: Array<string> = [
-          "test comment",
-          "What a cool picture!",
-          "Space is so cool!",
-        ];
+        const comments: Array<string> = [];
 
         //gets data from NASA API
         const response = await fetch(APIurl);
@@ -164,6 +160,35 @@ export const NASAImageResolvers: IResolvers = {
         { $set: { likes: unlikedNASAImage.likes } }
       );
       return unlikedNASAImage;
+    },
+    postComment: async (
+      _root: undefined,
+      { id, comment }: { id: string; comment: string },
+      { db }: { db: Database }
+    ) => {
+      console.log(id + " " + comment);
+      const commentedNASAImage = await db.NASAImages.findOne({
+        _id: new ObjectId(id),
+      });
+
+      if (!commentedNASAImage) {
+        throw new Error("failed to comment NASAImage");
+      }
+
+      let commentArr = commentedNASAImage.comments;
+      if (comment.length > 0) {
+        if (!commentArr) {
+          commentArr = [comment];
+        } else {
+          commentArr.push(comment);
+        }
+      }
+      db.NASAImages.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { comments: commentArr } }
+      );
+
+      return commentedNASAImage;
     },
   },
   NASAImage: {

@@ -43,3 +43,12 @@ export interface unlikeNASAImageData {
 export interface unlikeNASAImageVariables {
   id: string;
 }
+
+export interface postCommentNASAImageData {
+  comments: NASAImage;
+}
+
+export interface postCommentNASAImageVariables {
+  id: string;
+  comment: string;
+}
