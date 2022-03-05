@@ -11,6 +11,7 @@ export interface NASAImage {
   service_version: string;
   title: string;
   url: string;
+  comments: Array<string>;
 }
 
 export interface Database {

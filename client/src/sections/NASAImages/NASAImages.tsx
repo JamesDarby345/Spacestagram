@@ -66,9 +66,7 @@ export const NASAImages = () => {
   const [
     likeNASAImage,
     { loading: likeNASAImageLoading, error: likeNASAImageError },
-  ] = useMutation<likeNASAImageData, likeNASAImageVariables>(
-    LIKENASAIMAGE
-  );
+  ] = useMutation<likeNASAImageData, likeNASAImageVariables>(LIKENASAIMAGE);
 
   const [
     unlikeNASAImage,
@@ -102,9 +100,7 @@ export const NASAImages = () => {
             <button onClick={() => handeLikeNASAImage(NASAImage.id)}>
               Like
             </button>
-            <button
-              onClick={() => handleUnlikeNASAImage(NASAImage.id)}
-            >
+            <button onClick={() => handleUnlikeNASAImage(NASAImage.id)}>
               Unlike
             </button>
           </li>

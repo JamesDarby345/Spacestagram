@@ -80,6 +80,11 @@ export const NASAImageResolvers: IResolvers = {
         } else {
           APIurl = baseUrl + apiKey;
         }
+        const comments: Array<string> = [
+          "test comment",
+          "What a cool picture!",
+          "Space is so cool!",
+        ];
 
         //gets data from NASA API
         const response = await fetch(APIurl);
@@ -106,6 +111,7 @@ export const NASAImageResolvers: IResolvers = {
             url,
             hdurl,
             service_version,
+            comments,
           });
         }
 

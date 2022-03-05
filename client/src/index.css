@@ -58,6 +58,28 @@
   color: rgb(121, 119, 119);
 }
 
+.comment {
+  margin-left: 25px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.post_comment {
+  white-space: nowrap;
+  display: inline-block;
+  width: 100%;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+.post_comment_text {
+  display: inline-block;
+  width: 90%;
+}
+.post_comment_button {
+  display: inline-block;
+  width: 10%;
+}
+
 .main_wrapper {
   width: 95%;
   height: 100%;

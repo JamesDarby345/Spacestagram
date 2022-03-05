@@ -9,6 +9,7 @@ export interface NASAImage {
   service_version: string;
   title: string;
   url: string;
+  comments: [string];
 }
 
 export interface NASAImagesData {

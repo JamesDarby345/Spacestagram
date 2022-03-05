@@ -11,6 +11,7 @@ import {
   Link,
   MediaCard,
   Stack,
+  TextField,
 } from "@shopify/polaris";
 import {
   addNASAImageData,
@@ -41,6 +42,7 @@ const NASAIMAGE = gql`
       title
       url
       media_type
+      comments
     }
   }
 `;
@@ -135,8 +137,8 @@ export const TodaysImage = ({ title, subTitle }: Props) => {
   };
 
   const handleAddNASAImage = async (dateToGet: string) => {
-    const res = await addNASAImage({ variables: { dateToGet } });
-    console.log(res);
+    const result = await addNASAImage({ variables: { dateToGet } });
+    console.log(result);
     refetch();
   };
 
@@ -156,6 +158,44 @@ export const TodaysImage = ({ title, subTitle }: Props) => {
   if (!fetchedData) {
     handleAddNASAImage(dateToDisplay);
   }
+
+  const [commentValue, setCommentValue] = useState("");
+
+  const handleComment = useCallback(
+    (newValue) => setCommentValue(newValue),
+    []
+  );
+
+  const comments = fetchedData?.NASAImage.comments;
+  const commentEntry = (
+    <div>
+      <div className="post_comment_text">
+        <TextField
+          label="Comment Entry"
+          labelHidden={true}
+          value={commentValue}
+          placeholder="Add a comment"
+          onChange={handleComment}
+          multiline={1}
+          autoComplete="off"
+          spellCheck={true}
+        />
+      </div>
+      <div className="post_comment_button">
+        <Button disabled={commentValue.length <= 0}>Post</Button>
+      </div>
+    </div>
+  );
+
+  var commentSpace = (
+    <div>
+      {comments?.map((comment) => (
+        <Card key={comment}>
+          <div className="comment">{comment}</div>
+        </Card>
+      ))}
+    </div>
+  );
 
   const NASAImageId = fetchedData?.NASAImage.id || "";
   var copyright = fetchedData?.NASAImage.copyright || "";
@@ -191,16 +231,23 @@ export const TodaysImage = ({ title, subTitle }: Props) => {
   }
 
   const NASAImageToShow = !addNASAImageLoading ? (
-    <MediaCard title={imageTitle} description={explanation} portrait={true}>
-      {NASAImageHTMLTag}
-      <div className="like_button_wrapper">
-        <span className="like_count">{likeCount}</span>
-        <Button onClick={() => handeLikingNASAImage(NASAImageId)}>
-          {liked}
-        </Button>
-        <span className="copyright">{copyright}</span>
+    <div>
+      <MediaCard title={imageTitle} description={explanation} portrait={true}>
+        {NASAImageHTMLTag}
+        <div className="like_button_wrapper">
+          <span className="like_count">{likeCount}</span>
+          <Button onClick={() => handeLikingNASAImage(NASAImageId)}>
+            {liked}
+          </Button>
+          <span className="copyright">{copyright}</span>
+        </div>
+      </MediaCard>
+      <div className="post_comment">
+        <Card>{commentEntry}</Card>
       </div>
-    </MediaCard>
+
+      {commentSpace}
+    </div>
   ) : (
     <NASAImageSkeleton />
   );

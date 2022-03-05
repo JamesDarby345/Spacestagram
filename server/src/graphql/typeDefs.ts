@@ -12,6 +12,7 @@ export const typeDefs = gql`
     service_version: String
     title: String!
     url: String!
+    comments: [String]
   }
 
   type Query {
