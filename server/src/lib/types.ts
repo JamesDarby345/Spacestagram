@@ -18,6 +18,8 @@ export interface Comment {
   _id: ObjectId;
   user: string;
   likes: number;
+  timestamp: string;
+  text: string;
 }
 export interface User {
   _id: string;

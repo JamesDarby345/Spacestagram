@@ -33,6 +33,7 @@
   "scripts": {
     "start": "nodemon -r dotenv/config src/index.ts",
     "build": "tsc -p ./",
-    "seed": "ts-node tmp/seed"
+    "seed": "ts-node tmp/seed",
+    "clear": "ts-node tmp/clear"
   }
 }
