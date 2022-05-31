@@ -1,7 +1,8 @@
 import { render } from "react-dom";
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { ApolloProvider } from "@apollo/react-hooks";
-import { TodaysImage } from "./sections";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { TodaysImage, Login, NotFound, User } from "./sections";
 import reportWebVitals from "./reportWebVitals";
 import "@shopify/polaris/build/esm/styles.css";
 import { AppProvider } from "@shopify/polaris";
@@ -12,13 +13,31 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
+const App = () => {
+  return (
+    <Router>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <TodaysImage
+              title="Spacestagram"
+              subTitle="Brought to you by the NASA Astronomy Picture of the Day (APOD) API!"
+            />
+          }
+        />
+        <Route path="/login" element={<Login />} />
+        <Route path="*" element={<NotFound />} />
+        <Route path="/user/:id" element={<User />} />
+      </Routes>
+    </Router>
+  );
+};
+
 render(
   <ApolloProvider client={client}>
     <AppProvider i18n={enTranslations}>
-      <TodaysImage
-        title="Spacestagram"
-        subTitle="Brought to you by the NASA Astronomy Picture of the Day (APOD) API!"
-      />
+      <App />
     </AppProvider>
   </ApolloProvider>,
   document.getElementById("root")
