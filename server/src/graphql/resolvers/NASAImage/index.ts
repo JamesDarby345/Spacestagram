@@ -80,7 +80,7 @@ export const NASAImageResolvers: IResolvers = {
         } else {
           APIurl = baseUrl + apiKey;
         }
-        const comments: Array<string> = [];
+        const comments: Array<ObjectId> = [];
 
         //gets data from NASA API
         const response = await fetch(APIurl);
@@ -163,10 +163,10 @@ export const NASAImageResolvers: IResolvers = {
     },
     postComment: async (
       _root: undefined,
-      { id, comment }: { id: string; comment: string },
+      { id, commentText }: { id: string; commentText: string },
       { db }: { db: Database }
     ) => {
-      console.log(id + " " + comment);
+      console.log(id + " " + commentText);
       const commentedNASAImage = await db.NASAImages.findOne({
         _id: new ObjectId(id),
       });
@@ -176,13 +176,16 @@ export const NASAImageResolvers: IResolvers = {
       }
 
       let commentArr = commentedNASAImage.comments;
-      if (comment.length > 0) {
+      const commentId = new ObjectId();
+
+      if (commentText.length > 0) {
         if (!commentArr) {
-          commentArr = [comment];
+          commentArr = [commentId];
         } else {
-          commentArr.push(comment);
+          commentArr.push(commentId);
         }
       }
+
       db.NASAImages.updateOne(
         { _id: new ObjectId(id) },
         { $set: { comments: commentArr } }
