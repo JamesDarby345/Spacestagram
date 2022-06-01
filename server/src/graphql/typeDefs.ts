@@ -1,6 +1,17 @@
 import { gql } from "apollo-server-express";
 
 export const typeDefs = gql`
+  input LogInInput {
+    code: String!
+  }
+
+  type Viewer {
+    id: ID
+    token: String
+    avatar: String
+    didRequest: Boolean!
+  }
+
   type NASAImage {
     id: ID!
     likes: Int
@@ -26,7 +37,7 @@ export const typeDefs = gql`
     unlike(id: ID!): NASAImage
     postComment(id: ID!, comment: String): NASAImage
     addNASAImage(dateToGet: String): String
-    logIn: String!
-    logOut: String!
+    logIn(input: LogInInput): Viewer!
+    logOut: Viewer!
   }
 `;
