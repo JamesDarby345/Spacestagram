@@ -3,17 +3,27 @@ import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { ApolloProvider } from "@apollo/react-hooks";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { TodaysImage, Login, NotFound, User } from "./sections";
+import { Viewer } from "./lib/types";
 import reportWebVitals from "./reportWebVitals";
 import "@shopify/polaris/build/esm/styles.css";
 import { AppProvider } from "@shopify/polaris";
 import enTranslations from "@shopify/polaris/locales/en.json";
+import { useState } from "react";
 
 const client = new ApolloClient({
   uri: "/api",
   cache: new InMemoryCache(),
 });
 
+const initialViewer: Viewer = {
+  id: null,
+  token: null,
+  avatar: null,
+  didRequest: false,
+};
+
 const App = () => {
+  const [viewer, setViewer] = useState<Viewer>(initialViewer);
   return (
     <Router>
       <Routes>
@@ -26,7 +36,7 @@ const App = () => {
             />
           }
         />
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<Login setViewer={setViewer} />} />
         <Route path="*" element={<NotFound />} />
         <Route path="/user/:id" element={<User />} />
       </Routes>
