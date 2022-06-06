@@ -2,11 +2,11 @@ import { render } from "react-dom";
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { ApolloProvider } from "@apollo/react-hooks";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { TodaysImage, Login, NotFound, User } from "./sections";
+import { TodaysImage, Login, NotFound, User, AppHeader } from "./sections";
 import { Viewer } from "./lib/types";
 import reportWebVitals from "./reportWebVitals";
 import "@shopify/polaris/build/esm/styles.css";
-import { AppProvider } from "@shopify/polaris";
+import { AppProvider, Frame } from "@shopify/polaris";
 import enTranslations from "@shopify/polaris/locales/en.json";
 import { useState } from "react";
 
@@ -27,20 +27,18 @@ const App = () => {
   console.log(viewer);
   return (
     <Router>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <TodaysImage
-              title="Spacestagram"
-              subTitle="Brought to you by the NASA Astronomy Picture of the Day (APOD) API!"
-            />
-          }
+      <div className="main_wrapper">
+        <AppHeader
+          title="Spacestagram"
+          subTitle="Brought to you by the NASA Astronomy Picture of the Day (APOD) API!"
         />
-        <Route path="/login" element={<Login setViewer={setViewer} />} />
-        <Route path="*" element={<NotFound />} />
-        <Route path="/user/:id" element={<User />} />
-      </Routes>
+        <Routes>
+          <Route path="/" element={<TodaysImage />} />
+          <Route path="/login" element={<Login setViewer={setViewer} />} />
+          <Route path="*" element={<NotFound />} />
+          <Route path="/user/:id" element={<User />} />
+        </Routes>
+      </div>
     </Router>
   );
 };

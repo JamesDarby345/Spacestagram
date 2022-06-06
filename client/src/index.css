@@ -78,6 +78,17 @@
   width: 12%;
 }
 
+.grid_container {
+  display: grid;
+  grid-auto-flow: column;
+  /* grid-auto-columns: 1fr; */
+}
+
+.header_login {
+  justify-self: end;
+  margin-top: 15px;
+}
+
 .main_wrapper {
   width: 95%;
   height: 100%;

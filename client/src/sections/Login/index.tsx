@@ -8,7 +8,7 @@ import {
 import { Viewer } from "../../lib/types";
 import { LOG_IN } from "../../lib/graphql/mutations/LogIn";
 import { useEffect, useRef } from "react";
-import { Spinner } from "@shopify/polaris";
+import { Button, Spinner } from "@shopify/polaris";
 
 interface Props {
   setViewer: (viewer: Viewer) => void;
@@ -67,8 +67,8 @@ export const Login = ({ setViewer }: Props) => {
   return (
     <div>
       <h2> Welcome to Spacestagram! </h2>
-      <button onClick={handleAuthorize}>Sign in with Google</button>
-      <button onClick={guestRedirect}>Continue as Guest</button>
+      <Button onClick={handleAuthorize}>Sign in with Google</Button>
+      <Button onClick={guestRedirect}>Continue as Guest</Button>
     </div>
   );
 };
