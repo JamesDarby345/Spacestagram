@@ -4,6 +4,7 @@ export interface Viewer {
   _id?: string;
   token?: string;
   avatar?: string;
+  name?: string;
   didRequest: boolean;
 }
 export interface NASAImage {
@@ -32,6 +33,7 @@ export interface User {
   token: string;
   name: string;
   avatar: string;
+  contact: string;
 }
 
 export interface Database {

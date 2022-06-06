@@ -9,6 +9,7 @@ import { Viewer } from "../../lib/types";
 import { LOG_IN } from "../../lib/graphql/mutations/LogIn";
 import { useEffect, useRef } from "react";
 import { Button, Spinner } from "@shopify/polaris";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   setViewer: (viewer: Viewer) => void;
@@ -16,6 +17,7 @@ interface Props {
 
 export const Login = ({ setViewer }: Props) => {
   const client = useApolloClient();
+  const navigate = useNavigate();
   const [logIn, { data: logInData, loading: logInLoading, error: logInError }] =
     useMutation<LogInData, LogInVariables>(LOG_IN, {
       onCompleted: (data) => {
@@ -53,7 +55,7 @@ export const Login = ({ setViewer }: Props) => {
 
   if (logInLoading) {
     return (
-      <div>
+      <div className="grid place-content-center mt-[25vh] mb-[25vh]">
         <Spinner accessibilityLabel="Image spinner" size="large" />
         Logging in...
       </div>
@@ -61,7 +63,7 @@ export const Login = ({ setViewer }: Props) => {
   }
 
   if (logInData && logInData.logIn) {
-    window.location.href = "/";
+    navigate("/");
   }
 
   return (

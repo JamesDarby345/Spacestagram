@@ -62,7 +62,7 @@ const logInViaGoogle = async (
       token,
       name: userName,
       avatar: userAvatar,
-      //contact: userEmail,
+      contact: userEmail,
     });
 
     viewer = await db.users.findOne({ _id: insertResult.insertedId });
@@ -107,6 +107,7 @@ export const viewerResolvers: IResolvers = {
           _id: viewer._id,
           token: viewer.token,
           avatar: viewer.avatar,
+          name: viewer.name,
           didRequest: true,
         };
       } catch (error) {

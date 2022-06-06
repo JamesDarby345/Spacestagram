@@ -5,7 +5,7 @@ export interface LogIn_logIn {
   id: string | null;
   token: string | null;
   avatar: string | null;
-  hasWallet: boolean | null;
+  name: string | null;
   didRequest: boolean;
 }
 

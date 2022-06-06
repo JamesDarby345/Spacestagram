@@ -3,7 +3,7 @@ export interface LogOut_logOut {
   id: string | null;
   token: string | null;
   avatar: string | null;
-  hasWallet: boolean | null;
+  name: string | null;
   didRequest: boolean;
 }
 

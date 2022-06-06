@@ -5,12 +5,6 @@ import {
   Spinner,
 } from "@shopify/polaris";
 
-// .image_spinner {
-//   margin-top: 25vh;
-//   margin-bottom: 25vh;
-//   text-align: center;
-// }
-
 export const NASAImageSkeleton = () => {
   return (
     <MediaCard title="" description={""} portrait={true}>
