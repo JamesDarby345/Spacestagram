@@ -1,5 +1,12 @@
 import { Collection, ObjectId } from "mongodb";
 
+export interface Viewer {
+  _id?: string;
+  token?: string;
+  avatar?: string;
+  name?: string;
+  didRequest: boolean;
+}
 export interface NASAImage {
   _id: ObjectId;
   likes: number;
@@ -11,9 +18,26 @@ export interface NASAImage {
   service_version: string;
   title: string;
   url: string;
-  comments: Array<string>;
+  comments: ObjectId[];
+}
+
+export interface Comment {
+  _id: ObjectId;
+  user: string;
+  likes: number;
+  timestamp: string;
+  text: string;
+}
+export interface User {
+  _id: string;
+  token: string;
+  name: string;
+  avatar: string;
+  contact: string;
 }
 
 export interface Database {
   NASAImages: Collection<NASAImage>;
+  users: Collection<User>;
+  comments: Collection<Comment>;
 }

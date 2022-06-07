@@ -76,12 +76,7 @@ const POSTCOMMENTNASAIMAGE = gql`
   }
 `;
 
-interface Props {
-  title: string;
-  subTitle: string;
-}
-
-export const TodaysImage = ({ title, subTitle }: Props) => {
+export const TodaysImage = () => {
   const hoursAgo = 12;
   const [liked, setLiked] = useState("Like");
 
@@ -309,9 +304,7 @@ export const TodaysImage = ({ title, subTitle }: Props) => {
   );
 
   return (
-    <div className="main_wrapper">
-      <h1 className="main_title">{title}</h1>
-      <h5 className="sub_title">{subTitle} </h5>
+    <div>
       {datePicker}
       {NASAImageToShow}
     </div>
