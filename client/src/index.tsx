@@ -6,7 +6,7 @@ import { TodaysImage, Login, NotFound, User, AppHeader } from "./sections";
 import { Viewer } from "./lib/types";
 import reportWebVitals from "./reportWebVitals";
 import "@shopify/polaris/build/esm/styles.css";
-import { AppProvider } from "@shopify/polaris";
+import { AppProvider, Frame } from "@shopify/polaris";
 import enTranslations from "@shopify/polaris/locales/en.json";
 import { useState } from "react";
 
@@ -33,6 +33,7 @@ const App = () => {
           title="Spacestagram"
           subTitle="Brought to you by the NASA Astronomy Picture of the Day (APOD) API!"
           viewer={viewer}
+          setViewer={setViewer}
         />
         <Routes>
           <Route path="/" element={<TodaysImage />} />
@@ -48,7 +49,9 @@ const App = () => {
 render(
   <ApolloProvider client={client}>
     <AppProvider i18n={enTranslations}>
-      <App />
+      <Frame>
+        <App />
+      </Frame>
     </AppProvider>
   </ApolloProvider>,
   document.getElementById("root")
