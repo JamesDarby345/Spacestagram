@@ -8,6 +8,7 @@
     "@graphql-tools/utils": "^8.6.0",
     "apollo-server-express": "^3.6.1",
     "compression": "^1.7.4",
+    "cookie-parser": "^1.4.6",
     "express": "^4.17.2",
     "googleapis": "^100.0.0",
     "graphql": "^16.2.0",
@@ -17,6 +18,7 @@
   },
   "devDependencies": {
     "@types/compression": "^1.7.2",
+    "@types/cookie-parser": "^1.4.3",
     "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.13",
     "@types/lodash.merge": "^4.6.6",

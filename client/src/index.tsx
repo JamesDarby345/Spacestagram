@@ -1,6 +1,6 @@
 import { render } from "react-dom";
 import { ApolloClient, InMemoryCache } from "@apollo/client";
-import { ApolloProvider } from "@apollo/react-hooks";
+import { ApolloProvider, useMutation } from "@apollo/react-hooks";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { TodaysImage, Login, NotFound, User, AppHeader } from "./sections";
 import { Viewer } from "./lib/types";
@@ -8,7 +8,12 @@ import reportWebVitals from "./reportWebVitals";
 import "@shopify/polaris/build/esm/styles.css";
 import { AppProvider, Frame } from "@shopify/polaris";
 import enTranslations from "@shopify/polaris/locales/en.json";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { LOG_IN } from "./lib/graphql/mutations/LogIn";
+import {
+  LogIn as LogInData,
+  LogInVariables,
+} from "./lib/graphql/mutations/LogIn/__generated__/LogIn";
 
 const client = new ApolloClient({
   uri: "/api",
@@ -25,7 +30,20 @@ const initialViewer: Viewer = {
 
 const App = () => {
   const [viewer, setViewer] = useState<Viewer>(initialViewer);
-  console.log(viewer);
+  const [logIn, { error }] = useMutation<LogInData, LogInVariables>(LOG_IN, {
+    onCompleted: (data) => {
+      if (data && data.logIn) {
+        setViewer(data.logIn);
+      }
+    },
+  });
+
+  const logInRef = useRef(logIn);
+
+  useEffect(() => {
+    logInRef.current();
+  }, []);
+
   return (
     <Router>
       <div className="main_wrapper">
