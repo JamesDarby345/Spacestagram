@@ -54,7 +54,7 @@ const App = () => {
           setViewer={setViewer}
         />
         <Routes>
-          <Route path="/" element={<TodaysImage />} />
+          <Route path="/" element={<TodaysImage viewer={viewer} />} />
           <Route path="/login" element={<Login setViewer={setViewer} />} />
           <Route path="*" element={<NotFound />} />
           <Route path="/user/:id" element={<User />} />

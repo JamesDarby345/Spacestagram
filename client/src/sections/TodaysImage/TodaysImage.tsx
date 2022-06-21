@@ -25,6 +25,12 @@ import {
   postCommentNASAImageVariables,
 } from "../NASAImages/types";
 import { NASAImageSkeleton } from "./NASAImageSkeleton";
+import { Viewer } from "../../lib/types";
+import { LikeButton } from "../../sections";
+
+interface Props {
+  viewer: Viewer;
+}
 
 const ADDNASAIMAGE = gql`
   mutation addNASAImage($dateToGet: String) {
@@ -49,23 +55,23 @@ const NASAIMAGE = gql`
   }
 `;
 
-const LIKENASAIMAGE = gql`
-  mutation likeNASAImage($id: ID!) {
-    like(id: $id) {
-      id
-      likes
-    }
-  }
-`;
+// const LIKENASAIMAGE = gql`
+//   mutation likeNASAImage($id: ID!) {
+//     like(id: $id) {
+//       id
+//       likes
+//     }
+//   }
+// `;
 
-const UNLIKENASAIMAGE = gql`
-  mutation unlikeNASAImage($id: ID!) {
-    unlike(id: $id) {
-      id
-      likes
-    }
-  }
-`;
+// const UNLIKENASAIMAGE = gql`
+//   mutation unlikeNASAImage($id: ID!) {
+//     unlike(id: $id) {
+//       id
+//       likes
+//     }
+//   }
+// `;
 
 const POSTCOMMENTNASAIMAGE = gql`
   mutation postCommentNASAImage($id: ID!, $comment: String!) {
@@ -76,9 +82,10 @@ const POSTCOMMENTNASAIMAGE = gql`
   }
 `;
 
-export const TodaysImage = () => {
+export const TodaysImage = ({ viewer }: Props) => {
+  const userId = viewer.id;
   const hoursAgo = 12;
-  const [liked, setLiked] = useState("Like");
+  // const [liked, setLiked] = useState("Like");
 
   //default is 12 ({hoursAgo}) hours past current time to prevent
   //requesting data NASA hasnt added to the API yet
@@ -89,10 +96,10 @@ export const TodaysImage = () => {
 
   var dateToDisplay = selectedDate.start.toISOString().slice(0, 10);
 
-  useEffect(() => {
-    dateToDisplay = selectedDate.start.toISOString().slice(0, 10);
-    setLiked("Like");
-  }, [selectedDate]);
+  // useEffect(() => {
+  //   dateToDisplay = selectedDate.start.toISOString().slice(0, 10);
+  //   setLiked("Like");
+  // }, [selectedDate]);
 
   const [{ month, year }, setDate] = useState({
     month: (dateToDisplay.slice(5, 7) as unknown as number) - 1,
@@ -101,17 +108,17 @@ export const TodaysImage = () => {
 
   const [open, setOpen] = useState(false);
 
-  const [
-    likeNASAImage,
-    { loading: likeNASAImageLoading, error: likeNASAImageError },
-  ] = useMutation<likeNASAImageData, likeNASAImageVariables>(LIKENASAIMAGE);
+  // const [
+  //   likeNASAImage,
+  //   { loading: likeNASAImageLoading, error: likeNASAImageError },
+  // ] = useMutation<likeNASAImageData, likeNASAImageVariables>(LIKENASAIMAGE);
 
-  const [
-    unlikeNASAImage,
-    { loading: unlikeNASAImageLoading, error: unlikeNASAImageError },
-  ] = useMutation<unlikeNASAImageData, unlikeNASAImageVariables>(
-    UNLIKENASAIMAGE
-  );
+  // const [
+  //   unlikeNASAImage,
+  //   { loading: unlikeNASAImageLoading, error: unlikeNASAImageError },
+  // ] = useMutation<unlikeNASAImageData, unlikeNASAImageVariables>(
+  //   UNLIKENASAIMAGE
+  // );
 
   const [
     addNASAImage,
@@ -127,25 +134,25 @@ export const TodaysImage = () => {
 
   const handleToggle = useCallback(() => setOpen((open) => !open), []);
 
-  const handeLikingNASAImage = async (id: string) => {
-    if (liked === "Like") {
-      handeLikeNASAImage(id);
-      setLiked("Unlike");
-    } else {
-      handleUnlikeNASAImage(id);
-      setLiked("Like");
-    }
-  };
+  // const handeLikingNASAImage = async (id: string, userId: string) => {
+  //   if (liked === "Like") {
+  //     handeLikeNASAImage(id, userId);
+  //     setLiked("Unlike");
+  //   } else {
+  //     handleUnlikeNASAImage(id, userId);
+  //     setLiked("Like");
+  //   }
+  // };
 
-  const handeLikeNASAImage = async (id: string) => {
-    await likeNASAImage({ variables: { id } });
-    refetch();
-  };
+  // const handeLikeNASAImage = async (id: string, userId: string) => {
+  //   await likeNASAImage({ variables: { id, userId } });
+  //   refetch();
+  // };
 
-  const handleUnlikeNASAImage = async (id: string) => {
-    await unlikeNASAImage({ variables: { id } });
-    refetch();
-  };
+  // const handleUnlikeNASAImage = async (id: string, userId: string) => {
+  //   await unlikeNASAImage({ variables: { id, userId } });
+  //   refetch();
+  // };
 
   const handleAddNASAImage = async (dateToGet: string) => {
     await addNASAImage({ variables: { dateToGet } });
@@ -260,9 +267,7 @@ export const TodaysImage = () => {
         {NASAImageHTMLTag}
         <div className="like_button_wrapper">
           <span className="like_count">{likeCount}</span>
-          <Button onClick={() => handeLikingNASAImage(NASAImageId)}>
-            {liked}
-          </Button>
+          <LikeButton viewer={viewer} NASAImageId={NASAImageId} />
           <span className="copyright">{copyright}</span>
         </div>
       </MediaCard>

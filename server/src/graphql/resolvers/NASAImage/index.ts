@@ -124,13 +124,18 @@ export const NASAImageResolvers: IResolvers = {
     like: async (
       _root: undefined,
       { id }: { id: string },
+      { userId }: { userId: string },
       { db }: { db: Database }
     ) => {
       const likedNASAImage = await db.NASAImages.findOne({
         _id: new ObjectId(id),
       });
 
-      if (!likedNASAImage) {
+      const userWhoLiked = await db.users.findOne({
+        id: new ObjectId(userId),
+      });
+
+      if (!likedNASAImage || !userWhoLiked) {
         throw new Error("failed to like NASAImage" + id);
       }
 
@@ -144,13 +149,18 @@ export const NASAImageResolvers: IResolvers = {
     unlike: async (
       _root: undefined,
       { id }: { id: string },
+      { userId }: { userId: string },
       { db }: { db: Database }
     ) => {
       const unlikedNASAImage = await db.NASAImages.findOne({
         _id: new ObjectId(id),
       });
 
-      if (!unlikedNASAImage) {
+      const userWhoUnliked = await db.users.findOne({
+        id: new ObjectId(userId),
+      });
+
+      if (!unlikedNASAImage || !userWhoUnliked) {
         throw new Error("failed to unlike NASAImage");
       }
 

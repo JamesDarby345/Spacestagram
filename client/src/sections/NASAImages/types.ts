@@ -34,6 +34,7 @@ export interface likeNASAImageData {
 
 export interface likeNASAImageVariables {
   id: string;
+  userId: string;
 }
 
 export interface unlikeNASAImageData {
@@ -42,6 +43,7 @@ export interface unlikeNASAImageData {
 
 export interface unlikeNASAImageVariables {
   id: string;
+  userId: string;
 }
 
 export interface postCommentNASAImageData {
