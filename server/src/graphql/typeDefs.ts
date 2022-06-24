@@ -1,8 +1,28 @@
+//this file defines the shape of GraphQL types
 import { gql } from "apollo-server-express";
 
 export const typeDefs = gql`
   input LogInInput {
     code: String!
+  }
+
+  type NASAImages {
+    total: Int!
+    result: [NASAImage!]!
+  }
+
+  type Comments {
+    total: Int!
+    result: [Comment!]!
+  }
+
+  type User {
+    id: ID!
+    name: String!
+    avatar: String!
+    contact: String!
+    likedNASAImages(limit: Int!, page: Int!): NASAImages!
+    comments(limit: Int!, page: Int!): Comments!
   }
 
   type Viewer {
@@ -11,6 +31,17 @@ export const typeDefs = gql`
     avatar: String
     name: String
     didRequest: Boolean!
+    likedNASAImages: [NASAImage!]
+    comments: [Comment!]
+  }
+
+  type Comment {
+    id: ID!
+    user: String!
+    likes: Int!
+    timestamp: String!
+    text: String!
+    usersWhoFlagged: [User!]
   }
 
   type NASAImage {
@@ -31,6 +62,7 @@ export const typeDefs = gql`
     NASAImages: [NASAImage!]!
     NASAImage(date: String): NASAImage
     authUrl: String!
+    user: String!
   }
 
   type Mutation {
