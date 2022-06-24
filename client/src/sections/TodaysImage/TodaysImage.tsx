@@ -25,6 +25,7 @@ import {
   postCommentNASAImageVariables,
 } from "../NASAImages/types";
 import { NASAImageSkeleton } from "./NASAImageSkeleton";
+import { Viewer } from "../../lib/types";
 
 const ADDNASAIMAGE = gql`
   mutation addNASAImage($dateToGet: String) {
@@ -33,7 +34,7 @@ const ADDNASAIMAGE = gql`
 `;
 
 const NASAIMAGE = gql`
-  query NASAImage($date: String) {
+  query NASAImage($date: String!) {
     NASAImage(date: $date) {
       id
       likes
@@ -45,6 +46,16 @@ const NASAIMAGE = gql`
       url
       media_type
       comments
+    }
+  }
+`;
+
+const NASAIMAGELIKED = gql`
+  query NASAImageLiked($date: String!, $userId: ID!) {
+    NASAImageLiked(date: $date, userId: $userId) {
+      id
+      userId
+      liked
     }
   }
 `;
@@ -76,7 +87,12 @@ const POSTCOMMENTNASAIMAGE = gql`
   }
 `;
 
-export const TodaysImage = () => {
+interface Props {
+  viewer: Viewer;
+}
+
+export const TodaysImage = ({ viewer }: Props) => {
+  const userId = viewer.id;
   const hoursAgo = 12;
   const [liked, setLiked] = useState("Like");
 
@@ -91,6 +107,7 @@ export const TodaysImage = () => {
 
   useEffect(() => {
     dateToDisplay = selectedDate.start.toISOString().slice(0, 10);
+    // var didUserLikeThisImage = useQuery(NASAIMAGELIKED, {
     setLiked("Like");
   }, [selectedDate]);
 
@@ -127,7 +144,7 @@ export const TodaysImage = () => {
 
   const handleToggle = useCallback(() => setOpen((open) => !open), []);
 
-  const handeLikingNASAImage = async (id: string) => {
+  const handeLikingNASAImage = async (id: string, userId: string) => {
     if (liked === "Like") {
       handeLikeNASAImage(id);
       setLiked("Unlike");
@@ -232,27 +249,40 @@ export const TodaysImage = () => {
   const explanation = fetchedData?.NASAImage.explanation || "";
   var url = fetchedData?.NASAImage.url;
 
-  var NASAImageHTMLTag = (
-    <img
-      src={url}
-      alt="NASA astronomy picture of the day"
-      width="100%"
-      height="100%"
-      className="main_image"
-      style={{
-        objectFit: "cover",
-        objectPosition: "center",
-      }}
-    />
-  );
-
-  if (fetchedData?.NASAImage.media_type === "video") {
-    NASAImageHTMLTag = (
+  const NASAImageHTMLTag =
+    fetchedData?.NASAImage.media_type === "video" ? (
       <div className="video_link">
         <Link url={url}>Link to today's video.</Link>
       </div>
+    ) : (
+      <img
+        src={url}
+        alt="NASA astronomy picture of the day"
+        width="100%"
+        height="100%"
+        className="main_image"
+        style={{
+          objectFit: "cover",
+          objectPosition: "center",
+        }}
+      />
     );
-  }
+
+  const likeButton = userId ? (
+    <Button
+      onClick={() => handeLikingNASAImage(NASAImageId, userId)}
+      accessibilityLabel="like button"
+    >
+      {liked}
+    </Button>
+  ) : (
+    <Button
+      disabled={true}
+      accessibilityLabel="like button is disabled until you login with google"
+    >
+      {liked}
+    </Button>
+  );
 
   const NASAImageToShow = !addNASAImageLoading ? (
     <div>
@@ -260,9 +290,7 @@ export const TodaysImage = () => {
         {NASAImageHTMLTag}
         <div className="like_button_wrapper">
           <span className="like_count">{likeCount}</span>
-          <Button onClick={() => handeLikingNASAImage(NASAImageId)}>
-            {liked}
-          </Button>
+          {likeButton}
           <span className="copyright">{copyright}</span>
         </div>
       </MediaCard>
