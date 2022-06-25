@@ -33,6 +33,31 @@ export const NASAImageResolvers: IResolvers = {
       }
       return NASAImageToReturn;
     },
+    NASAImageLikedByUser: async (
+      _root: undefined,
+      { id, userId }: { id: string; userId: string },
+      { db }: { db: Database }
+    ) => {
+      const queiredNASAImage = await db.NASAImages.findOne({
+        _id: new ObjectId(id),
+      });
+      const queiredUser = await db.users.findOne({
+        _id: userId,
+      });
+
+      if (!queiredNASAImage || !queiredUser) {
+        throw new Error(
+          "failed to find necessary information for NASAImageLikedByUser"
+        );
+      }
+
+      for (let i = 0; i < queiredUser.likedNASAImages.length; i++) {
+        if (queiredUser.likedNASAImages[i].toString() == id) {
+          return true;
+        }
+      }
+      return false;
+    },
   },
   Mutation: {
     addNASAImage: (

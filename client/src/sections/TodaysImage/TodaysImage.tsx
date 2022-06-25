@@ -52,17 +52,13 @@ const NASAIMAGE = gql`
 
 const NASAIMAGELIKED = gql`
   query NASAImageLiked($date: String!, $userId: ID!) {
-    NASAImageLiked(date: $date, userId: $userId) {
-      id
-      userId
-      liked
-    }
+    NASAImageLiked(date: $date, userId: $userId)
   }
 `;
 
 const LIKENASAIMAGE = gql`
-  mutation likeNASAImage($id: ID!) {
-    like(id: $id) {
+  mutation likeNASAImage($id: ID!, $userId: String!) {
+    like(id: $id, userId: $userId) {
       id
       likes
     }
@@ -70,8 +66,8 @@ const LIKENASAIMAGE = gql`
 `;
 
 const UNLIKENASAIMAGE = gql`
-  mutation unlikeNASAImage($id: ID!) {
-    unlike(id: $id) {
+  mutation unlikeNASAImage($id: ID!, $userId: String!) {
+    unlike(id: $id, userId: $userId) {
       id
       likes
     }
@@ -92,7 +88,7 @@ interface Props {
 }
 
 export const TodaysImage = ({ viewer }: Props) => {
-  const userId = viewer.id;
+  const userId = viewer.id ? (viewer.id as string) : "";
   const hoursAgo = 12;
   const [liked, setLiked] = useState("Like");
 
@@ -107,7 +103,7 @@ export const TodaysImage = ({ viewer }: Props) => {
 
   useEffect(() => {
     dateToDisplay = selectedDate.start.toISOString().slice(0, 10);
-    // var didUserLikeThisImage = useQuery(NASAIMAGELIKED, {
+    //let didUserLikeThisImage = useQuery(NASAIMAGELIKED);
     setLiked("Like");
   }, [selectedDate]);
 
@@ -155,12 +151,12 @@ export const TodaysImage = ({ viewer }: Props) => {
   };
 
   const handeLikeNASAImage = async (id: string) => {
-    await likeNASAImage({ variables: { id } });
+    await likeNASAImage({ variables: { id, userId } });
     refetch();
   };
 
   const handleUnlikeNASAImage = async (id: string) => {
-    await unlikeNASAImage({ variables: { id } });
+    await unlikeNASAImage({ variables: { id, userId } });
     refetch();
   };
 
