@@ -1,35 +1,39 @@
 //this file defines the shape of GraphQL types
 import { gql } from "apollo-server-express";
 
+// type NASAImages {
+//   total: Int
+//   result: [NASAImage]
+// }
+
+//likedNASAImages(limit: Int!, page: Int!): NASAImages!
+
+// type Comments {
+//   total: Int
+//   result: [Comment]
+// }
+
+//comments(limit: Int!, page: Int!): Comments!
+
 export const typeDefs = gql`
   input LogInInput {
     code: String!
   }
 
-  type NASAImages {
-    total: Int!
-    result: [NASAImage!]!
-  }
-
-  type Comments {
-    total: Int!
-    result: [Comment!]!
-  }
-
   type User {
-    id: ID!
+    id: String!
     name: String!
     avatar: String!
     contact: String!
-    likedNASAImages(limit: Int!, page: Int!): NASAImages!
-    comments(limit: Int!, page: Int!): Comments!
+    likedNASAImages: [NASAImage!]
+    comments: [Comment!]
   }
 
   type Viewer {
-    id: ID
+    id: String!
     token: String
     avatar: String
-    name: String
+    name: String!
     didRequest: Boolean!
     likedNASAImages: [NASAImage!]
     comments: [Comment!]
@@ -37,7 +41,7 @@ export const typeDefs = gql`
 
   type Comment {
     id: ID!
-    user: String!
+    user: User!
     likes: Int!
     timestamp: String!
     text: String!
@@ -62,12 +66,12 @@ export const typeDefs = gql`
     NASAImages: [NASAImage!]!
     NASAImage(date: String): NASAImage
     authUrl: String!
-    user: String!
+    user(id: ID!): User!
   }
 
   type Mutation {
-    like(id: ID!): NASAImage
-    unlike(id: ID!): NASAImage
+    like(id: ID!, userId: String!): NASAImage
+    unlike(id: ID!, userId: String!): NASAImage
     postComment(id: ID!, comment: String): NASAImage
     addNASAImage(dateToGet: String): String
     logIn(input: LogInInput): Viewer!
