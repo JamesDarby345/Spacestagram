@@ -51,8 +51,8 @@ const NASAIMAGE = gql`
 `;
 
 const NASAIMAGELIKED = gql`
-  query NASAImageLiked($date: String!, $userId: ID!) {
-    NASAImageLiked(date: $date, userId: $userId)
+  query NASAImageLikedByUser($id: ID!, $userId: String!) {
+    NASAImageLiked(id: $id, userId: $userId)
   }
 `;
 
@@ -202,15 +202,15 @@ export const TodaysImage = ({ viewer }: Props) => {
     variables: { date: dateToDisplay },
   });
 
-  // const { data: isLiked, refetch: refetchLiked } = useQuery(NASAIMAGELIKED, {
-  //   variables: { date: dateToDisplay, userId: userId },
-  // });
+  const isLiked = useQuery<Boolean>(NASAIMAGELIKED, {
+    variables: { date: dateToDisplay, userId: userId },
+  });
 
   if (!fetchedData) {
     handleAddNASAImage(dateToDisplay);
   }
 
-  //setLiked(isLiked ? "Unlike" : "Like");
+  setLiked(isLiked.data ? "Unlike" : "Like");
 
   const [commentValue, setCommentValue] = useState("");
 
