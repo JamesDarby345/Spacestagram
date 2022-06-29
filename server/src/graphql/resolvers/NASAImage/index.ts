@@ -35,11 +35,11 @@ export const NASAImageResolvers: IResolvers = {
     },
     NASAImageLikedByUser: async (
       _root: undefined,
-      { id, userId }: { id: string; userId: string },
+      { date, userId }: { date: string; userId: string },
       { db }: { db: Database }
     ) => {
       const queiredNASAImage = await db.NASAImages.findOne({
-        _id: new ObjectId(id),
+        date: date,
       });
       const queiredUser = await db.users.findOne({
         _id: userId,
@@ -52,7 +52,10 @@ export const NASAImageResolvers: IResolvers = {
       }
 
       for (let i = 0; i < queiredUser.likedNASAImages.length; i++) {
-        if (queiredUser.likedNASAImages[i].toString() == id) {
+        if (
+          queiredUser.likedNASAImages[i].toString() ==
+          queiredNASAImage._id.toString()
+        ) {
           return true;
         }
       }

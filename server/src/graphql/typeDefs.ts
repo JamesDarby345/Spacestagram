@@ -67,7 +67,7 @@ export const typeDefs = gql`
     NASAImage(date: String): NASAImage
     authUrl: String!
     user(id: ID!): User!
-    NASAImageLikedByUser(id: ID!, userId: String!): Boolean
+    NASAImageLikedByUser(date: String!, userId: String!): Boolean
   }
 
   type Mutation {

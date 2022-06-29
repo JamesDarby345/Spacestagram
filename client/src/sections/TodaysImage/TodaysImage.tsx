@@ -23,6 +23,7 @@ import {
   NASAImageData,
   postCommentNASAImageData,
   postCommentNASAImageVariables,
+  NASAImageVariables,
 } from "../NASAImages/types";
 import { NASAImageSkeleton } from "./NASAImageSkeleton";
 import { Viewer } from "../../lib/types";
@@ -34,7 +35,7 @@ const ADDNASAIMAGE = gql`
 `;
 
 const NASAIMAGE = gql`
-  query NASAImage($date: String!) {
+  query NASAImage($date: String!, $userId: String!) {
     NASAImage(date: $date) {
       id
       likes
@@ -47,14 +48,15 @@ const NASAIMAGE = gql`
       media_type
       comments
     }
+    NASAImageLikedByUser(date: $date, userId: $userId)
   }
 `;
 
-const NASAIMAGELIKED = gql`
-  query NASAImageLikedByUser($id: ID!, $userId: String!) {
-    NASAImageLiked(id: $id, userId: $userId)
-  }
-`;
+// const NASAIMAGELIKED = gql`
+//   query NASAImageLikedByUser($id: ID!, $userId: String!) {
+//     NASAImageLikedByUser(id: $id, userId: $userId)
+//   }
+// `;
 
 const LIKENASAIMAGE = gql`
   mutation likeNASAImage($id: ID!, $userId: String!) {
@@ -90,7 +92,7 @@ interface Props {
 export const TodaysImage = ({ viewer }: Props) => {
   const userId = viewer.id ? (viewer.id as string) : "";
   const hoursAgo = 12;
-  const [liked, setLiked] = useState("Like");
+  const [liked, setLiked] = useState("init");
 
   //default is 12 ({hoursAgo}) hours past current time to prevent
   //requesting data NASA hasnt added to the API yet
@@ -146,22 +148,24 @@ export const TodaysImage = ({ viewer }: Props) => {
   const handleToggle = useCallback(() => setOpen((open) => !open), []);
 
   const handeLikingNASAImage = async (id: string, userId: string) => {
-    if (liked === "Like") {
-      handeLikeNASAImage(id);
-      setLiked("Unlike");
+    //refetch();
+    //console.log(fetchedData?.NASAImageLikedByUser + " NASAImageLikedByUser?");
+    if (fetchedData?.NASAImageLikedByUser) {
+      handleUnlikeNASAImage(id, userId);
     } else {
-      handleUnlikeNASAImage(id);
-      setLiked("Like");
+      handleLikeNASAImage(id, userId);
     }
+    //setLiked(fetchedData?.NASAImageLikedByUser ? "AUnlike" : "ALike");
+    //console.log("A" + fetchedData?.NASAImageLikedByUser);
   };
 
-  const handeLikeNASAImage = async (id: string) => {
+  const handleLikeNASAImage = async (id: string, userId: string) => {
     await likeNASAImage({ variables: { id, userId } });
     refetch();
     // refetchLiked();
   };
 
-  const handleUnlikeNASAImage = async (id: string) => {
+  const handleUnlikeNASAImage = async (id: string, userId: string) => {
     await unlikeNASAImage({ variables: { id, userId } });
     refetch();
     // refetchLiked();
@@ -190,6 +194,8 @@ export const TodaysImage = ({ viewer }: Props) => {
 
   useEffect(() => {
     handleAddNASAImage(dateToDisplay);
+    //setLiked(fetchedData?.NASAImageLikedByUser ? "BLike" : "BUnlike");
+    //console.log("B");
     //handleLikedByUser(dateToDisplay, userId);
   }, []);
 
@@ -198,19 +204,38 @@ export const TodaysImage = ({ viewer }: Props) => {
     []
   );
 
-  const { data: fetchedData, refetch } = useQuery<NASAImageData>(NASAIMAGE, {
-    variables: { date: dateToDisplay },
-  });
-
-  const isLiked = useQuery<Boolean>(NASAIMAGELIKED, {
+  const {
+    loading: fetchedDataLoading,
+    data: fetchedData,
+    refetch,
+  } = useQuery<NASAImageData, NASAImageVariables>(NASAIMAGE, {
     variables: { date: dateToDisplay, userId: userId },
   });
 
-  if (!fetchedData) {
+  useEffect(() => {
+    if (fetchedDataLoading) {
+      setLiked("Loading");
+    } else {
+      setLiked(fetchedData?.NASAImageLikedByUser ? "BUnlike" : "BLike");
+      console.log("B" + fetchedData?.NASAImageLikedByUser);
+    }
+
+    //handleLikedByUser(dateToDisplay, userId);
+  }, [fetchedDataLoading, fetchedData]);
+
+  console.log(fetchedData);
+
+  // const NASAImageLikedByUser = useQuery<Boolean>(NASAIMAGELIKED, {
+  //   variables: { date: dateToDisplay, userId: userId },
+  // });
+
+  if (!fetchedData && !fetchedDataLoading) {
     handleAddNASAImage(dateToDisplay);
   }
 
-  setLiked(isLiked.data ? "Unlike" : "Like");
+  //setLiked(fetchedData?.NASAImageLikedByUser ? "Unlike" : "Like");
+
+  // setLiked(NASAImageLikedByUser.data ? "Unlike" : "Like");
 
   const [commentValue, setCommentValue] = useState("");
 
@@ -220,6 +245,7 @@ export const TodaysImage = ({ viewer }: Props) => {
   );
 
   const comments = fetchedData?.NASAImage.comments;
+  //setLiked(fetchedData?.NASAImageLikedByUser ? "Unlike" : "Like");
   const commentEntry = (
     <div>
       <div className="post_comment_text">
