@@ -1,21 +1,25 @@
 import { useQuery, useMutation, gql } from "@apollo/client";
 import { Button } from "@shopify/polaris";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Viewer } from "../../lib/types";
 import {
   likeNASAImageData,
   likeNASAImageVariables,
+  NASAImageData,
   unlikeNASAImageData,
   unlikeNASAImageVariables,
 } from "../NASAImages/types";
 
 interface Props {
   viewer: Viewer;
-  NASAImageId: string;
+  fetchedData: NASAImageData | undefined;
+  fetchedDataLoading: boolean;
+  refetch: () => void;
 }
+
 const LIKENASAIMAGE = gql`
-  mutation likeNASAImage($id: ID!) {
-    like(id: $id) {
+  mutation likeNASAImage($id: ID!, $userId: String!) {
+    like(id: $id, userId: $userId) {
       id
       likes
     }
@@ -23,17 +27,22 @@ const LIKENASAIMAGE = gql`
 `;
 
 const UNLIKENASAIMAGE = gql`
-  mutation unlikeNASAImage($id: ID!) {
-    unlike(id: $id) {
+  mutation unlikeNASAImage($id: ID!, $userId: String!) {
+    unlike(id: $id, userId: $userId) {
       id
       likes
     }
   }
 `;
 
-export const LikeButton = ({ viewer, NASAImageId }: Props) => {
-  const userId = viewer.id;
-  const [liked, setLiked] = useState("Like");
+export const LikeButton = ({
+  viewer,
+  fetchedData,
+  fetchedDataLoading,
+  refetch,
+}: Props) => {
+  const userId = viewer.id ? (viewer.id as string) : "";
+  const [liked, setLiked] = useState("init");
 
   const [
     likeNASAImage,
@@ -47,29 +56,37 @@ export const LikeButton = ({ viewer, NASAImageId }: Props) => {
     UNLIKENASAIMAGE
   );
 
-  const handeLikingNASAImage = async (id: string, userId: string) => {
-    if (liked === "Like") {
-      handeLikeNASAImage(id, userId);
-      setLiked("Unlike");
-    } else {
+  const handleLikingNASAImage = async (id: string, userId: string) => {
+    if (fetchedData?.NASAImageLikedByUser) {
       handleUnlikeNASAImage(id, userId);
-      setLiked("Like");
+    } else {
+      handleLikeNASAImage(id, userId);
     }
   };
 
-  const handeLikeNASAImage = async (id: string, userId: string) => {
+  const handleLikeNASAImage = async (id: string, userId: string) => {
     await likeNASAImage({ variables: { id, userId } });
-    //refetch();
+    refetch();
   };
 
   const handleUnlikeNASAImage = async (id: string, userId: string) => {
     await unlikeNASAImage({ variables: { id, userId } });
-    //refetch();
+    refetch();
   };
+
+  useEffect(() => {
+    if (fetchedDataLoading) {
+      setLiked("Loading");
+    } else {
+      setLiked(fetchedData?.NASAImageLikedByUser ? "Unlike" : "Like");
+    }
+  }, [fetchedDataLoading, fetchedData]);
+
+  const NASAImageId = fetchedData?.NASAImage.id || "";
 
   const likeButton = userId ? (
     <Button
-      onClick={() => handeLikingNASAImage(NASAImageId, userId)}
+      onClick={() => handleLikingNASAImage(NASAImageId, userId)}
       accessibilityLabel="like button"
     >
       {liked}

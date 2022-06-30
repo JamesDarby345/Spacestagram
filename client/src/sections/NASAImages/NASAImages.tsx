@@ -1,4 +1,5 @@
 export const NASAImages = () => {};
+//TODO: remove this file and all old NASAImages code
 // /* eslint-disable jsx-a11y/img-redundant-alt */
 // import { useQuery, useMutation, gql } from "@apollo/client";
 // import {
@@ -24,11 +25,25 @@ export const NASAImages = () => {};
 //   }
 // `;
 
+// const NASAIMAGE = gql`
+//   query NASAImage($date: string) {
+//     NASAImage {
+//       id
+//       likes
+//       copyright
+//       date
+//       explanation
+//       hdurl
+//       title
+//       url
+//     }
+//   }
+// `;
+
 // const LIKENASAIMAGE = gql`
 //   mutation likeNASAImage($id: ID!) {
 //     like(id: $id) {
 //       id
-//       userId
 //       likes
 //     }
 //   }
@@ -38,11 +53,13 @@ export const NASAImages = () => {};
 //   mutation unlikeNASAImage($id: ID!) {
 //     unlike(id: $id) {
 //       id
-//       userId
 //       likes
 //     }
 //   }
 // `;
+
+// const baseUrl = "https://api.nasa.gov/planetary/apod?api_key=";
+// const apiKey = "mVHFdj3idfIQM8TVfEycg58TSHvoAdTBzGGJfmia";
 
 // export const NASAImages = () => {
 //   const { data, loading, error, refetch } =

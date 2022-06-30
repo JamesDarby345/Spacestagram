@@ -18,6 +18,11 @@ export interface NASAImagesData {
 
 export interface NASAImageData {
   NASAImage: NASAImage;
+  NASAImageLikedByUser: boolean;
+}
+export interface NASAImageVariables {
+  date: string;
+  userId: string;
 }
 
 export interface addNASAImageData {

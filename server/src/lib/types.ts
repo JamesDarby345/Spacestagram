@@ -1,3 +1,4 @@
+// This file defines Typescript types for the database.
 import { Collection, ObjectId } from "mongodb";
 
 export interface Viewer {
@@ -27,6 +28,7 @@ export interface Comment {
   likes: number;
   timestamp: string;
   text: string;
+  usersWhoFlagged: ObjectId[];
 }
 export interface User {
   _id: string;
@@ -34,6 +36,8 @@ export interface User {
   name: string;
   avatar: string;
   contact: string;
+  likedNASAImages: ObjectId[];
+  comments: ObjectId[];
 }
 
 export interface Database {

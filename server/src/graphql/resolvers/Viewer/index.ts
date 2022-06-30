@@ -72,6 +72,8 @@ const logInViaGoogle = async (
       name: userName,
       avatar: userAvatar,
       contact: userEmail,
+      likedNASAImages: [],
+      comments: [],
     });
 
     viewer = await db.users.findOne({ _id: insertResult.insertedId });

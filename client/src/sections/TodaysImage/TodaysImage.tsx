@@ -16,21 +16,14 @@ import {
 import {
   addNASAImageData,
   addNASAImageVariables,
-  likeNASAImageData,
-  likeNASAImageVariables,
-  unlikeNASAImageData,
-  unlikeNASAImageVariables,
   NASAImageData,
   postCommentNASAImageData,
   postCommentNASAImageVariables,
+  NASAImageVariables,
 } from "../NASAImages/types";
 import { NASAImageSkeleton } from "./NASAImageSkeleton";
 import { Viewer } from "../../lib/types";
-import { LikeButton } from "../../sections";
-
-interface Props {
-  viewer: Viewer;
-}
+import { LikeButton } from "../LikeButton";
 
 const ADDNASAIMAGE = gql`
   mutation addNASAImage($dateToGet: String) {
@@ -39,7 +32,7 @@ const ADDNASAIMAGE = gql`
 `;
 
 const NASAIMAGE = gql`
-  query NASAImage($date: String) {
+  query NASAImage($date: String!, $userId: String!) {
     NASAImage(date: $date) {
       id
       likes
@@ -52,26 +45,9 @@ const NASAIMAGE = gql`
       media_type
       comments
     }
+    NASAImageLikedByUser(date: $date, userId: $userId)
   }
 `;
-
-// const LIKENASAIMAGE = gql`
-//   mutation likeNASAImage($id: ID!) {
-//     like(id: $id) {
-//       id
-//       likes
-//     }
-//   }
-// `;
-
-// const UNLIKENASAIMAGE = gql`
-//   mutation unlikeNASAImage($id: ID!) {
-//     unlike(id: $id) {
-//       id
-//       likes
-//     }
-//   }
-// `;
 
 const POSTCOMMENTNASAIMAGE = gql`
   mutation postCommentNASAImage($id: ID!, $comment: String!) {
@@ -82,10 +58,13 @@ const POSTCOMMENTNASAIMAGE = gql`
   }
 `;
 
+interface Props {
+  viewer: Viewer;
+}
+
 export const TodaysImage = ({ viewer }: Props) => {
-  const userId = viewer.id;
+  const userId = viewer.id ? (viewer.id as string) : "";
   const hoursAgo = 12;
-  // const [liked, setLiked] = useState("Like");
 
   //default is 12 ({hoursAgo}) hours past current time to prevent
   //requesting data NASA hasnt added to the API yet
@@ -96,10 +75,9 @@ export const TodaysImage = ({ viewer }: Props) => {
 
   var dateToDisplay = selectedDate.start.toISOString().slice(0, 10);
 
-  // useEffect(() => {
-  //   dateToDisplay = selectedDate.start.toISOString().slice(0, 10);
-  //   setLiked("Like");
-  // }, [selectedDate]);
+  useEffect(() => {
+    dateToDisplay = selectedDate.start.toISOString().slice(0, 10);
+  }, [selectedDate]);
 
   const [{ month, year }, setDate] = useState({
     month: (dateToDisplay.slice(5, 7) as unknown as number) - 1,
@@ -107,18 +85,6 @@ export const TodaysImage = ({ viewer }: Props) => {
   });
 
   const [open, setOpen] = useState(false);
-
-  // const [
-  //   likeNASAImage,
-  //   { loading: likeNASAImageLoading, error: likeNASAImageError },
-  // ] = useMutation<likeNASAImageData, likeNASAImageVariables>(LIKENASAIMAGE);
-
-  // const [
-  //   unlikeNASAImage,
-  //   { loading: unlikeNASAImageLoading, error: unlikeNASAImageError },
-  // ] = useMutation<unlikeNASAImageData, unlikeNASAImageVariables>(
-  //   UNLIKENASAIMAGE
-  // );
 
   const [
     addNASAImage,
@@ -133,26 +99,6 @@ export const TodaysImage = ({ viewer }: Props) => {
   >(POSTCOMMENTNASAIMAGE);
 
   const handleToggle = useCallback(() => setOpen((open) => !open), []);
-
-  // const handeLikingNASAImage = async (id: string, userId: string) => {
-  //   if (liked === "Like") {
-  //     handeLikeNASAImage(id, userId);
-  //     setLiked("Unlike");
-  //   } else {
-  //     handleUnlikeNASAImage(id, userId);
-  //     setLiked("Like");
-  //   }
-  // };
-
-  // const handeLikeNASAImage = async (id: string, userId: string) => {
-  //   await likeNASAImage({ variables: { id, userId } });
-  //   refetch();
-  // };
-
-  // const handleUnlikeNASAImage = async (id: string, userId: string) => {
-  //   await unlikeNASAImage({ variables: { id, userId } });
-  //   refetch();
-  // };
 
   const handleAddNASAImage = async (dateToGet: string) => {
     await addNASAImage({ variables: { dateToGet } });
@@ -174,11 +120,15 @@ export const TodaysImage = ({ viewer }: Props) => {
     []
   );
 
-  const { data: fetchedData, refetch } = useQuery<NASAImageData>(NASAIMAGE, {
-    variables: { date: dateToDisplay },
+  const {
+    loading: fetchedDataLoading,
+    data: fetchedData,
+    refetch,
+  } = useQuery<NASAImageData, NASAImageVariables>(NASAIMAGE, {
+    variables: { date: dateToDisplay, userId: userId },
   });
 
-  if (!fetchedData) {
+  if (!fetchedData && !fetchedDataLoading) {
     handleAddNASAImage(dateToDisplay);
   }
 
@@ -239,45 +189,48 @@ export const TodaysImage = ({ viewer }: Props) => {
   const explanation = fetchedData?.NASAImage.explanation || "";
   var url = fetchedData?.NASAImage.url;
 
-  var NASAImageHTMLTag = (
-    <img
-      src={url}
-      alt="NASA astronomy picture of the day"
-      width="100%"
-      height="100%"
-      className="main_image"
-      style={{
-        objectFit: "cover",
-        objectPosition: "center",
-      }}
-    />
-  );
-
-  if (fetchedData?.NASAImage.media_type === "video") {
-    NASAImageHTMLTag = (
+  const NASAImageHTMLTag =
+    fetchedData?.NASAImage.media_type === "video" ? (
       <div className="video_link">
         <Link url={url}>Link to today's video.</Link>
       </div>
+    ) : (
+      <img
+        src={url}
+        alt="NASA astronomy picture of the day"
+        width="100%"
+        height="100%"
+        className="main_image"
+        style={{
+          objectFit: "cover",
+          objectPosition: "center",
+        }}
+      />
     );
-  }
 
-  const NASAImageToShow = !addNASAImageLoading ? (
-    <div>
-      <MediaCard title={imageTitle} description={explanation} portrait={true}>
-        {NASAImageHTMLTag}
-        <div className="like_button_wrapper">
-          <span className="like_count">{likeCount}</span>
-          <LikeButton viewer={viewer} NASAImageId={NASAImageId} />
-          <span className="copyright">{copyright}</span>
-        </div>
-      </MediaCard>
-      <div className="post_comment">{commentEntry}</div>
+  const NASAImageToShow =
+    !addNASAImageLoading && !fetchedDataLoading ? (
+      <div>
+        <MediaCard title={imageTitle} description={explanation} portrait={true}>
+          {NASAImageHTMLTag}
+          <div className="like_button_wrapper">
+            <span className="like_count">{likeCount}</span>
+            <LikeButton
+              viewer={viewer}
+              fetchedData={fetchedData}
+              fetchedDataLoading={fetchedDataLoading}
+              refetch={refetch}
+            />
+            <span className="copyright">{copyright}</span>
+          </div>
+        </MediaCard>
+        <div className="post_comment">{commentEntry}</div>
 
-      {commentSpace}
-    </div>
-  ) : (
-    <NASAImageSkeleton />
-  );
+        {commentSpace}
+      </div>
+    ) : (
+      <NASAImageSkeleton />
+    );
 
   const datePicker = (
     <div className="date_picker">
