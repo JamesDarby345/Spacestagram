@@ -6,6 +6,7 @@ build/
 
 # misc
 .DS_Store
+.vscode/
 
 # environment variables
 .env
