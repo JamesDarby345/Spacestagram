@@ -1,6 +1,7 @@
 import { IResolvers } from "@graphql-tools/utils";
 import { Database, NASAImage } from "../../../lib/types";
 import { ObjectId } from "mongodb";
+import { arrayBuffer } from "stream/consumers";
 
 const baseUrl = "https://api.nasa.gov/planetary/apod?api_key=";
 const apiKey = "mVHFdj3idfIQM8TVfEycg58TSHvoAdTBzGGJfmia";
@@ -31,6 +32,34 @@ export const NASAImageResolvers: IResolvers = {
         );
       }
       return NASAImageToReturn;
+    },
+    NASAImageLikedByUser: async (
+      _root: undefined,
+      { date, userId }: { date: string; userId: string },
+      { db }: { db: Database }
+    ) => {
+      const queiredNASAImage = await db.NASAImages.findOne({
+        date: date,
+      });
+      const queiredUser = await db.users.findOne({
+        _id: userId,
+      });
+
+      if (!queiredNASAImage || !queiredUser) {
+        throw new Error(
+          "failed to find necessary information for NASAImageLikedByUser"
+        );
+      }
+
+      for (let i = 0; i < queiredUser.likedNASAImages.length; i++) {
+        if (
+          queiredUser.likedNASAImages[i].toString() ==
+          queiredNASAImage._id.toString()
+        ) {
+          return true;
+        }
+      }
+      return false;
     },
   },
   Mutation: {
@@ -80,6 +109,7 @@ export const NASAImageResolvers: IResolvers = {
         } else {
           APIurl = baseUrl + apiKey;
         }
+        const comments: Array<ObjectId> = [];
 
         //gets data from NASA API
         const response = await fetch(APIurl);
@@ -106,6 +136,7 @@ export const NASAImageResolvers: IResolvers = {
             url,
             hdurl,
             service_version,
+            comments,
           });
         }
 
@@ -121,36 +152,80 @@ export const NASAImageResolvers: IResolvers = {
     },
     like: async (
       _root: undefined,
-      { id }: { id: string },
+      { id, userId }: { id: string; userId: string },
       { db }: { db: Database }
     ) => {
+      const image_id = new ObjectId(id);
       const likedNASAImage = await db.NASAImages.findOne({
-        _id: new ObjectId(id),
+        _id: image_id,
       });
 
-      if (!likedNASAImage) {
-        throw new Error("failed to like NASAImage" + id);
+      const userWhoLiked = await db.users.findOne({
+        _id: userId,
+      });
+
+      if (!likedNASAImage || !userWhoLiked) {
+        throw new Error("failed to like NASAImage " + id);
       }
 
+      for (let i = 0; i < userWhoLiked.likedNASAImages.length; i++) {
+        if (userWhoLiked.likedNASAImages[i].toString() == id) {
+          throw new Error("The user has already liked this image " + id);
+        }
+      }
+
+      userWhoLiked.likedNASAImages =
+        userWhoLiked.likedNASAImages.concat(image_id);
+
+      await db.users.updateOne(
+        { _id: userId },
+        { $set: { likedNASAImages: userWhoLiked.likedNASAImages } }
+      );
+
       likedNASAImage.likes = ++likedNASAImage.likes;
-      db.NASAImages.updateOne(
+
+      await db.NASAImages.updateOne(
         { _id: new ObjectId(id) },
         { $set: { likes: likedNASAImage.likes } }
       );
+
       return likedNASAImage;
     },
     unlike: async (
       _root: undefined,
-      { id }: { id: string },
+      { id, userId }: { id: string; userId: string },
       { db }: { db: Database }
     ) => {
+      const image_id = new ObjectId(id);
       const unlikedNASAImage = await db.NASAImages.findOne({
-        _id: new ObjectId(id),
+        _id: image_id,
       });
 
-      if (!unlikedNASAImage) {
+      const userWhoUnliked = await db.users.findOne({
+        _id: userId,
+      });
+
+      if (!unlikedNASAImage || !userWhoUnliked) {
         throw new Error("failed to unlike NASAImage");
       }
+
+      let userHasLiked = false;
+      for (let i = 0; i < userWhoUnliked.likedNASAImages.length; i++) {
+        if (userWhoUnliked.likedNASAImages[i].toString() == id) {
+          userHasLiked = true;
+          userWhoUnliked.likedNASAImages.splice(i, 1);
+          break;
+        }
+      }
+
+      if (!userHasLiked) {
+        throw new Error("The user has not liked this image " + id);
+      }
+
+      await db.users.updateOne(
+        { _id: userId },
+        { $set: { likedNASAImages: userWhoUnliked.likedNASAImages } }
+      );
 
       unlikedNASAImage.likes = --unlikedNASAImage.likes;
       db.NASAImages.updateOne(
@@ -158,6 +233,38 @@ export const NASAImageResolvers: IResolvers = {
         { $set: { likes: unlikedNASAImage.likes } }
       );
       return unlikedNASAImage;
+    },
+    postComment: async (
+      _root: undefined,
+      { id, commentText }: { id: string; commentText: string },
+      { db }: { db: Database }
+    ) => {
+      console.log(id + " " + commentText);
+      const commentedNASAImage = await db.NASAImages.findOne({
+        _id: new ObjectId(id),
+      });
+
+      if (!commentedNASAImage) {
+        throw new Error("failed to comment NASAImage");
+      }
+
+      let commentArr = commentedNASAImage.comments;
+      const commentId = new ObjectId();
+
+      if (commentText.length > 0) {
+        if (!commentArr) {
+          commentArr = [commentId];
+        } else {
+          commentArr.push(commentId);
+        }
+      }
+
+      db.NASAImages.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { comments: commentArr } }
+      );
+
+      return commentedNASAImage;
     },
   },
   NASAImage: {

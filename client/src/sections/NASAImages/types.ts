@@ -9,6 +9,7 @@ export interface NASAImage {
   service_version: string;
   title: string;
   url: string;
+  comments: [string];
 }
 
 export interface NASAImagesData {
@@ -17,6 +18,11 @@ export interface NASAImagesData {
 
 export interface NASAImageData {
   NASAImage: NASAImage;
+  NASAImageLikedByUser: boolean;
+}
+export interface NASAImageVariables {
+  date: string;
+  userId: string;
 }
 
 export interface addNASAImageData {
@@ -33,6 +39,7 @@ export interface likeNASAImageData {
 
 export interface likeNASAImageVariables {
   id: string;
+  userId: string;
 }
 
 export interface unlikeNASAImageData {
@@ -41,4 +48,14 @@ export interface unlikeNASAImageData {
 
 export interface unlikeNASAImageVariables {
   id: string;
+  userId: string;
+}
+
+export interface postCommentNASAImageData {
+  comments: NASAImage;
+}
+
+export interface postCommentNASAImageVariables {
+  id: string;
+  comment: string;
 }

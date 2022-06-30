@@ -8,7 +8,9 @@
     "@graphql-tools/utils": "^8.6.0",
     "apollo-server-express": "^3.6.1",
     "compression": "^1.7.4",
+    "cookie-parser": "^1.4.6",
     "express": "^4.17.2",
+    "googleapis": "^100.0.0",
     "graphql": "^16.2.0",
     "lodash.merge": "^4.6.2",
     "mongodb": "^4.3.0",
@@ -16,6 +18,7 @@
   },
   "devDependencies": {
     "@types/compression": "^1.7.2",
+    "@types/cookie-parser": "^1.4.3",
     "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.13",
     "@types/lodash.merge": "^4.6.6",
@@ -33,6 +36,7 @@
   "scripts": {
     "start": "nodemon -r dotenv/config src/index.ts",
     "build": "tsc -p ./",
-    "seed": "ts-node tmp/seed"
+    "seed": "ts-node tmp/seed",
+    "clear": "ts-node tmp/clear"
   }
 }

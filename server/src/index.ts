@@ -4,14 +4,17 @@ import compression from "compression";
 import { ApolloServer } from "apollo-server-express";
 import { typeDefs } from "./graphql";
 import { resolvers } from "./graphql/resolvers";
+import cookieParser from "cookie-parser";
 
 const mount = async (app: Application) => {
   const server = new ApolloServer({
     typeDefs,
     resolvers,
-    context: () => ({ db }),
+    context: ({ req, res }) => ({ db, req, res }),
   });
   const db = await connectDatabase();
+
+  app.use(cookieParser(process.env.SECRET));
 
   server.start().then(() => {
     app.use(compression());
