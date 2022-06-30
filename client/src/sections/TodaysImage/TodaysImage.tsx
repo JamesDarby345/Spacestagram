@@ -134,49 +134,49 @@ export const TodaysImage = ({ viewer }: Props) => {
 
   const [commentValue, setCommentValue] = useState("");
 
-  const handleCommentEntry = useCallback(
-    (newValue) => setCommentValue(newValue),
-    []
-  );
+  // const handleCommentEntry = useCallback(
+  //   (newValue) => setCommentValue(newValue),
+  //   []
+  // );
 
-  const comments = fetchedData?.NASAImage.comments;
-  const commentEntry = (
-    <div>
-      <div className="post_comment_text">
-        <TextField
-          label="Comment Entry"
-          labelHidden={true}
-          value={commentValue}
-          placeholder="Add a comment"
-          onChange={handleCommentEntry}
-          multiline={1}
-          autoComplete="off"
-          spellCheck={true}
-        />
-      </div>
-      <div className="post_comment_button">
-        <Button
-          disabled={commentValue.length <= 0}
-          onClick={() => handlePostingComment(NASAImageId, commentValue)}
-        >
-          Post
-        </Button>
-      </div>
-    </div>
-  );
+  // const comments = fetchedData?.NASAImage.comments;
+  // const commentEntry = (
+  //   <div>
+  //     <div className="post_comment_text">
+  //       <TextField
+  //         label="Comment Entry"
+  //         labelHidden={true}
+  //         value={commentValue}
+  //         placeholder="Add a comment"
+  //         onChange={handleCommentEntry}
+  //         multiline={1}
+  //         autoComplete="off"
+  //         spellCheck={true}
+  //       />
+  //     </div>
+  //     <div className="post_comment_button">
+  //       <Button
+  //         disabled={commentValue.length <= 0}
+  //         onClick={() => handlePostingComment(NASAImageId, commentValue)}
+  //       >
+  //         Post
+  //       </Button>
+  //     </div>
+  //   </div>
+  // );
 
-  var commentSpace = (
-    <div>
-      {comments
-        ?.slice(0)
-        .reverse()
-        .map((comment) => (
-          <Card key={comment}>
-            <div className="comment">{comment}</div>
-          </Card>
-        ))}
-    </div>
-  );
+  // var commentSpace = (
+  //   <div>
+  //     {comments
+  //       ?.slice(0)
+  //       .reverse()
+  //       .map((comment) => (
+  //         <Card key={comment}>
+  //           <div className="comment">{comment}</div>
+  //         </Card>
+  //       ))}
+  //   </div>
+  // );
 
   const NASAImageId = fetchedData?.NASAImage.id || "";
   var copyright = fetchedData?.NASAImage.copyright || "";
@@ -224,9 +224,9 @@ export const TodaysImage = ({ viewer }: Props) => {
             <span className="copyright">{copyright}</span>
           </div>
         </MediaCard>
-        <div className="post_comment">{commentEntry}</div>
+        {/* <div className="post_comment">{commentEntry}</div> */}
 
-        {commentSpace}
+        {/* {commentSpace} */}
       </div>
     ) : (
       <NASAImageSkeleton />
