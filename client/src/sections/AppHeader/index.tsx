@@ -1,5 +1,5 @@
 import { useMutation } from "@apollo/react-hooks";
-import { Avatar, Banner, Button, Frame, Toast } from "@shopify/polaris";
+import { Avatar, Banner, Button, Toast } from "@shopify/polaris";
 import { useCallback, useState } from "react";
 import { LOG_OUT } from "../../lib/graphql/mutations/LogOut";
 import { LogOut as LogOutData } from "../../lib/graphql/mutations/LogOut/__generated__/LogOut";

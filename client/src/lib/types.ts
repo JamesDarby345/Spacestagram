@@ -4,4 +4,5 @@ export interface Viewer {
   avatar: string | null;
   name: string | null;
   didRequest: boolean;
+  // likedNASAImages: [string] | null;
 }

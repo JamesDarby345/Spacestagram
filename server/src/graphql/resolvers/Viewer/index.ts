@@ -145,6 +145,7 @@ export const viewerResolvers: IResolvers = {
           avatar: viewer.avatar,
           name: viewer.name,
           didRequest: true,
+          // likedNASAImages: viewer.likedNASAImages,
         };
       } catch (error) {
         throw new Error(`Failed to log in: ${error}`);

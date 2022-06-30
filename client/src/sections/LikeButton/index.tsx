@@ -1,6 +1,5 @@
-import { gql, useMutation } from "@apollo/client";
+import { useQuery, useMutation, gql } from "@apollo/client";
 import { Button } from "@shopify/polaris";
-import { ApolloQueryResult } from "apollo-boost";
 import { useEffect, useState } from "react";
 import { Viewer } from "../../lib/types";
 import {
@@ -100,6 +99,5 @@ export const LikeButton = ({
       {liked}
     </Button>
   );
-
   return likeButton;
 };
