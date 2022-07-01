@@ -3,16 +3,7 @@
 import "./../../index.css";
 import { useState, useEffect, useCallback } from "react";
 import { useQuery, useMutation, gql } from "@apollo/client";
-import {
-  Button,
-  Card,
-  Collapsible,
-  DatePicker,
-  Link,
-  MediaCard,
-  Stack,
-  TextField,
-} from "@shopify/polaris";
+import { Button, Card, Link, MediaCard, TextField } from "@shopify/polaris";
 import {
   addNASAImageData,
   addNASAImageVariables,
