@@ -18,13 +18,15 @@ const compression_1 = __importDefault(require("compression"));
 const apollo_server_express_1 = require("apollo-server-express");
 const graphql_1 = require("./graphql");
 const resolvers_1 = require("./graphql/resolvers");
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const mount = (app) => __awaiter(void 0, void 0, void 0, function* () {
     const server = new apollo_server_express_1.ApolloServer({
         typeDefs: graphql_1.typeDefs,
         resolvers: resolvers_1.resolvers,
-        context: () => ({ db }),
+        context: ({ req, res }) => ({ db, req, res }),
     });
     const db = yield (0, database_1.connectDatabase)();
+    app.use((0, cookie_parser_1.default)(process.env.SECRET));
     server.start().then(() => {
         app.use((0, compression_1.default)());
         app.use(express_1.default.static(`${__dirname}/client`));

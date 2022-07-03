@@ -16,7 +16,9 @@ const connectDatabase = () => __awaiter(void 0, void 0, void 0, function* () {
     const client = yield mongodb_1.MongoClient.connect(url);
     const db = client.db("main");
     return {
-        NASAImages: db.collection("test_NASAImages")
+        NASAImages: db.collection("NASAImages"),
+        users: db.collection("users"),
+        comments: db.collection("comments"),
     };
 });
 exports.connectDatabase = connectDatabase;

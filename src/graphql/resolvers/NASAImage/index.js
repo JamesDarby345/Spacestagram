@@ -29,6 +29,24 @@ exports.NASAImageResolvers = {
             }
             return NASAImageToReturn;
         }),
+        NASAImageLikedByUser: (_root, { date, userId }, { db }) => __awaiter(void 0, void 0, void 0, function* () {
+            const queiredNASAImage = yield db.NASAImages.findOne({
+                date: date,
+            });
+            const queiredUser = yield db.users.findOne({
+                _id: userId,
+            });
+            if (!queiredNASAImage || !queiredUser) {
+                throw new Error("failed to find necessary information for NASAImageLikedByUser");
+            }
+            for (let i = 0; i < queiredUser.likedNASAImages.length; i++) {
+                if (queiredUser.likedNASAImages[i].toString() ==
+                    queiredNASAImage._id.toString()) {
+                    return true;
+                }
+            }
+            return false;
+        }),
     },
     Mutation: {
         addNASAImage: (_root, { dateToGet }, { db }) => {
@@ -36,7 +54,7 @@ exports.NASAImageResolvers = {
                 return __awaiter(this, void 0, void 0, function* () {
                     //checks if date passed in is valid format
                     function isValidDate(dateToGet) {
-                        const regEx = /^\d{4}-\d{2}-\d{2}$/;
+                        const regEx = /^\d{4}-\d{2}-\d{2}$/; //####-##-## format
                         if (!dateToGet.match(regEx))
                             return false; // Invalid format
                         const d = new Date(dateToGet);
@@ -69,6 +87,8 @@ exports.NASAImageResolvers = {
                     else {
                         APIurl = baseUrl + apiKey;
                     }
+                    const comments = [];
+                    //gets data from NASA API
                     const response = yield fetch(APIurl);
                     const data = yield response.json();
                     const date = data.date;
@@ -92,6 +112,7 @@ exports.NASAImageResolvers = {
                             url,
                             hdurl,
                             service_version,
+                            comments,
                         });
                     }
                     return ("Succesfully added the APOD picture for " +
@@ -102,27 +123,76 @@ exports.NASAImageResolvers = {
             const responseString = fetchNASAData(dateToGet);
             return responseString;
         },
-        like: (_root, { id }, { db }) => __awaiter(void 0, void 0, void 0, function* () {
+        like: (_root, { id, userId }, { db }) => __awaiter(void 0, void 0, void 0, function* () {
+            const image_id = new mongodb_1.ObjectId(id);
             const likedNASAImage = yield db.NASAImages.findOne({
-                _id: new mongodb_1.ObjectId(id),
+                _id: image_id,
             });
-            if (!likedNASAImage) {
-                throw new Error("failed to like NASAImage" + id);
+            const userWhoLiked = yield db.users.findOne({
+                _id: userId,
+            });
+            if (!likedNASAImage || !userWhoLiked) {
+                throw new Error("failed to like NASAImage " + id);
             }
-            likedNASAImage.likes = likedNASAImage.likes + 1;
-            db.NASAImages.updateOne({ _id: new mongodb_1.ObjectId(id) }, { $set: { likes: likedNASAImage.likes } });
+            for (let i = 0; i < userWhoLiked.likedNASAImages.length; i++) {
+                if (userWhoLiked.likedNASAImages[i].toString() == id) {
+                    throw new Error("The user has already liked this image " + id);
+                }
+            }
+            userWhoLiked.likedNASAImages =
+                userWhoLiked.likedNASAImages.concat(image_id);
+            yield db.users.updateOne({ _id: userId }, { $set: { likedNASAImages: userWhoLiked.likedNASAImages } });
+            likedNASAImage.likes = ++likedNASAImage.likes;
+            yield db.NASAImages.updateOne({ _id: new mongodb_1.ObjectId(id) }, { $set: { likes: likedNASAImage.likes } });
             return likedNASAImage;
         }),
-        unlike: (_root, { id }, { db }) => __awaiter(void 0, void 0, void 0, function* () {
+        unlike: (_root, { id, userId }, { db }) => __awaiter(void 0, void 0, void 0, function* () {
+            const image_id = new mongodb_1.ObjectId(id);
             const unlikedNASAImage = yield db.NASAImages.findOne({
-                _id: new mongodb_1.ObjectId(id),
+                _id: image_id,
             });
-            if (!unlikedNASAImage) {
+            const userWhoUnliked = yield db.users.findOne({
+                _id: userId,
+            });
+            if (!unlikedNASAImage || !userWhoUnliked) {
                 throw new Error("failed to unlike NASAImage");
             }
-            unlikedNASAImage.likes = unlikedNASAImage.likes - 1;
+            let userHasLiked = false;
+            for (let i = 0; i < userWhoUnliked.likedNASAImages.length; i++) {
+                if (userWhoUnliked.likedNASAImages[i].toString() == id) {
+                    userHasLiked = true;
+                    userWhoUnliked.likedNASAImages.splice(i, 1);
+                    break;
+                }
+            }
+            if (!userHasLiked) {
+                throw new Error("The user has not liked this image " + id);
+            }
+            yield db.users.updateOne({ _id: userId }, { $set: { likedNASAImages: userWhoUnliked.likedNASAImages } });
+            unlikedNASAImage.likes = --unlikedNASAImage.likes;
             db.NASAImages.updateOne({ _id: new mongodb_1.ObjectId(id) }, { $set: { likes: unlikedNASAImage.likes } });
             return unlikedNASAImage;
+        }),
+        postComment: (_root, { id, commentText }, { db }) => __awaiter(void 0, void 0, void 0, function* () {
+            console.log(id + " " + commentText);
+            const commentedNASAImage = yield db.NASAImages.findOne({
+                _id: new mongodb_1.ObjectId(id),
+            });
+            if (!commentedNASAImage) {
+                throw new Error("failed to comment NASAImage");
+            }
+            let commentArr = commentedNASAImage.comments;
+            const commentId = new mongodb_1.ObjectId();
+            if (commentText.length > 0) {
+                if (!commentArr) {
+                    commentArr = [commentId];
+                }
+                else {
+                    commentArr.push(commentId);
+                }
+            }
+            db.NASAImages.updateOne({ _id: new mongodb_1.ObjectId(id) }, { $set: { comments: commentArr } });
+            return commentedNASAImage;
         }),
     },
     NASAImage: {
