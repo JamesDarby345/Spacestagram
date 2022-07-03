@@ -202,9 +202,9 @@ export const TodaysImage = ({ viewer }: Props) => {
             <span className="copyright">{copyright}</span>
           </div>
         </MediaCard>
-        <div className="post_comment">{commentEntry}</div>
+        {/* <div className="post_comment">{commentEntry}</div>
 
-        {commentSpace}
+        {commentSpace} */}
       </div>
     ) : (
       <NASAImageSkeleton />
