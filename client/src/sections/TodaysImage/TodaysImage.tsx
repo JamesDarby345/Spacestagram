@@ -3,16 +3,7 @@
 import "./../../index.css";
 import { useState, useEffect, useCallback } from "react";
 import { useQuery, useMutation, gql } from "@apollo/client";
-import {
-  Button,
-  Card,
-  Collapsible,
-  DatePicker,
-  Link,
-  MediaCard,
-  Stack,
-  TextField,
-} from "@shopify/polaris";
+import { Button, Card, Link, MediaCard, TextField } from "@shopify/polaris";
 import {
   addNASAImageData,
   addNASAImageVariables,
@@ -24,6 +15,7 @@ import {
 import { NASAImageSkeleton } from "./NASAImageSkeleton";
 import { Viewer } from "../../lib/types";
 import { LikeButton } from "../LikeButton";
+import { DateSelector } from "../DateSelector";
 
 const ADDNASAIMAGE = gql`
   mutation addNASAImage($dateToGet: String) {
@@ -79,13 +71,6 @@ export const TodaysImage = ({ viewer }: Props) => {
     dateToDisplay = selectedDate.start.toISOString().slice(0, 10);
   }, [selectedDate]);
 
-  const [{ month, year }, setDate] = useState({
-    month: (dateToDisplay.slice(5, 7) as unknown as number) - 1,
-    year: dateToDisplay.slice(0, 4) as unknown as number,
-  });
-
-  const [open, setOpen] = useState(false);
-
   const [
     addNASAImage,
     { loading: addNASAImageLoading, error: addNASAImageError },
@@ -97,8 +82,6 @@ export const TodaysImage = ({ viewer }: Props) => {
     postCommentNASAImageData,
     postCommentNASAImageVariables
   >(POSTCOMMENTNASAIMAGE);
-
-  const handleToggle = useCallback(() => setOpen((open) => !open), []);
 
   const handleAddNASAImage = async (dateToGet: string) => {
     await addNASAImage({ variables: { dateToGet } });
@@ -115,11 +98,6 @@ export const TodaysImage = ({ viewer }: Props) => {
     handleAddNASAImage(dateToDisplay);
   }, []);
 
-  const handleMonthChange = useCallback(
-    (month, year) => setDate({ month, year }),
-    []
-  );
-
   const {
     loading: fetchedDataLoading,
     data: fetchedData,
@@ -134,49 +112,49 @@ export const TodaysImage = ({ viewer }: Props) => {
 
   const [commentValue, setCommentValue] = useState("");
 
-  // const handleCommentEntry = useCallback(
-  //   (newValue) => setCommentValue(newValue),
-  //   []
-  // );
+  const handleCommentEntry = useCallback(
+    (newValue) => setCommentValue(newValue),
+    []
+  );
 
-  // const comments = fetchedData?.NASAImage.comments;
-  // const commentEntry = (
-  //   <div>
-  //     <div className="post_comment_text">
-  //       <TextField
-  //         label="Comment Entry"
-  //         labelHidden={true}
-  //         value={commentValue}
-  //         placeholder="Add a comment"
-  //         onChange={handleCommentEntry}
-  //         multiline={1}
-  //         autoComplete="off"
-  //         spellCheck={true}
-  //       />
-  //     </div>
-  //     <div className="post_comment_button">
-  //       <Button
-  //         disabled={commentValue.length <= 0}
-  //         onClick={() => handlePostingComment(NASAImageId, commentValue)}
-  //       >
-  //         Post
-  //       </Button>
-  //     </div>
-  //   </div>
-  // );
+  const comments = fetchedData?.NASAImage.comments;
+  const commentEntry = (
+    <div>
+      <div className="post_comment_text">
+        <TextField
+          label="Comment Entry"
+          labelHidden={true}
+          value={commentValue}
+          placeholder="Add a comment"
+          onChange={handleCommentEntry}
+          multiline={1}
+          autoComplete="off"
+          spellCheck={true}
+        />
+      </div>
+      <div className="post_comment_button">
+        <Button
+          disabled={commentValue.length <= 0}
+          onClick={() => handlePostingComment(NASAImageId, commentValue)}
+        >
+          Post
+        </Button>
+      </div>
+    </div>
+  );
 
-  // var commentSpace = (
-  //   <div>
-  //     {comments
-  //       ?.slice(0)
-  //       .reverse()
-  //       .map((comment) => (
-  //         <Card key={comment}>
-  //           <div className="comment">{comment}</div>
-  //         </Card>
-  //       ))}
-  //   </div>
-  // );
+  var commentSpace = (
+    <div>
+      {comments
+        ?.slice(0)
+        .reverse()
+        .map((comment) => (
+          <Card key={comment}>
+            <div className="comment">{comment}</div>
+          </Card>
+        ))}
+    </div>
+  );
 
   const NASAImageId = fetchedData?.NASAImage.id || "";
   var copyright = fetchedData?.NASAImage.copyright || "";
@@ -224,46 +202,21 @@ export const TodaysImage = ({ viewer }: Props) => {
             <span className="copyright">{copyright}</span>
           </div>
         </MediaCard>
-        {/* <div className="post_comment">{commentEntry}</div> */}
+        <div className="post_comment">{commentEntry}</div>
 
-        {/* {commentSpace} */}
+        {commentSpace}
       </div>
     ) : (
       <NASAImageSkeleton />
     );
 
-  const datePicker = (
-    <div className="date_picker">
-      <Stack vertical>
-        <Button
-          onClick={handleToggle}
-          ariaExpanded={open}
-          ariaControls="basic-collapsible"
-        >
-          Pick Date
-        </Button>
-        <Collapsible
-          id={"basic-collapsible"}
-          open={open}
-          transition={{ duration: "500ms", timingFunction: "ease-in-out" }}
-        >
-          <DatePicker
-            month={month}
-            year={year}
-            onChange={setSelectedDate}
-            onMonthChange={handleMonthChange}
-            selected={selectedDate}
-            disableDatesBefore={new Date("1995-06-16")}
-            disableDatesAfter={new Date()}
-          />
-        </Collapsible>
-      </Stack>
-    </div>
-  );
-
   return (
     <div>
-      {datePicker}
+      <DateSelector
+        dateToDisplay={dateToDisplay}
+        selectedDate={selectedDate}
+        setSelectedDate={setSelectedDate}
+      />
       {NASAImageToShow}
     </div>
   );
