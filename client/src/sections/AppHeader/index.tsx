@@ -21,17 +21,18 @@ export const AppHeader = ({ title, subTitle, viewer, setViewer }: Props) => {
   const [logoutError, setLogoutError] = useState(false);
 
   const toggleActive = useCallback(() => setActive((active) => !active), []);
-  const toggleLogoutError = useCallback(
-    () => setLogoutError((logoutError) => !logoutError),
-    []
-  );
+  const dismissLogoutError = useCallback(() => setLogoutError(false), []);
 
   const toastLogOut = active ? (
     <Toast content="Logout successful" onDismiss={toggleActive} />
   ) : null;
 
   const errorBannerLogOut = logoutError ? (
-    <Banner title="Logout Error" onDismiss={toggleLogoutError} status="warning">
+    <Banner
+      title="Logout Error"
+      onDismiss={dismissLogoutError}
+      status="warning"
+    >
       <p>
         There was an error with your logout attempt. Please try again later.
       </p>
@@ -45,7 +46,7 @@ export const AppHeader = ({ title, subTitle, viewer, setViewer }: Props) => {
         setActive(true);
       }
     },
-    onError: () => {
+    onError: (error) => {
       setLogoutError(true);
     },
   });

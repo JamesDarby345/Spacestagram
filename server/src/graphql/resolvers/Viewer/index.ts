@@ -136,7 +136,7 @@ export const viewerResolvers: IResolvers = {
           : await logInViaCookie(token, db, req, res);
 
         if (!viewer) {
-          return { didRequest: true };
+          return { _id: "", didRequest: true };
         }
 
         return {
@@ -158,7 +158,7 @@ export const viewerResolvers: IResolvers = {
     ): Viewer => {
       try {
         res.clearCookie("viewer", cookieOptions);
-        return { didRequest: true };
+        return { _id: "", didRequest: true };
       } catch (error) {
         throw new Error(`Failed to log out: ${error}`);
       }
