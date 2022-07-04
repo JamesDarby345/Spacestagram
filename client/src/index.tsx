@@ -6,7 +6,7 @@ import { TodaysImage, Login, NotFound, User, AppHeader } from "./sections";
 import { Viewer } from "./lib/types";
 import reportWebVitals from "./reportWebVitals";
 import "@shopify/polaris/build/esm/styles.css";
-import { AppProvider, Frame } from "@shopify/polaris";
+import { AppProvider, Banner, Frame } from "@shopify/polaris";
 import enTranslations from "@shopify/polaris/locales/en.json";
 import { useState, useEffect, useRef } from "react";
 import { LOG_IN } from "./lib/graphql/mutations/LogIn";
@@ -21,7 +21,7 @@ const client = new ApolloClient({
 });
 
 const initialViewer: Viewer = {
-  id: null,
+  id: "",
   token: null,
   avatar: null,
   name: null,
@@ -32,7 +32,7 @@ const App = () => {
   const [viewer, setViewer] = useState<Viewer>(initialViewer);
   const [logIn, { error }] = useMutation<LogInData, LogInVariables>(LOG_IN, {
     onCompleted: (data) => {
-      if (data && data.logIn) {
+      if (data && data.logIn && data.logIn.id !== "" && data.logIn.id) {
         setViewer(data.logIn);
       }
     },
@@ -44,9 +44,18 @@ const App = () => {
     logInRef.current();
   }, []);
 
+  const errorBannerLogIn = error ? (
+    <Banner title="Logout Error" onDismiss={() => {}} status="warning">
+      <p>
+        There was an error with your logout attempt. Please try again later.
+      </p>
+    </Banner>
+  ) : null;
+
   return (
     <Router>
       <div className="main_wrapper">
+        {errorBannerLogIn}
         <AppHeader
           title="Spacestagram"
           subTitle="Brought to you by the NASA Astronomy Picture of the Day (APOD) API!"

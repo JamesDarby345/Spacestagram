@@ -7,7 +7,7 @@ import {
 } from "../../lib/graphql/mutations/LogIn/__generated__/LogIn";
 import { Viewer } from "../../lib/types";
 import { LOG_IN } from "../../lib/graphql/mutations/LogIn";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Banner, Button, Spinner } from "@shopify/polaris";
 import { useNavigate } from "react-router-dom";
 
@@ -17,22 +17,17 @@ interface Props {
 
 export const Login = ({ setViewer }: Props) => {
   const client = useApolloClient();
+  const [authError, setAuthError] = useState(false);
   const navigate = useNavigate();
 
   const [logIn, { data: logInData, loading: logInLoading, error: logInError }] =
     useMutation<LogInData, LogInVariables>(LOG_IN, {
       onCompleted: (data) => {
-        if (data && data.logIn) {
+        if (data && data.logIn && data.logIn.id !== "" && data.logIn.id) {
           setViewer(data.logIn);
         }
       },
     });
-
-  const errorBannerLogIn = logInError ? (
-    <Banner title="Logout Error" onDismiss={() => {}} status="warning">
-      <p>There was an error with your login attempt. Please try again later.</p>
-    </Banner>
-  ) : null;
 
   const logInRef = useRef(logIn);
 
@@ -53,8 +48,19 @@ export const Login = ({ setViewer }: Props) => {
         query: AUTH_URL,
       });
       window.location.href = data.authUrl;
-    } catch {}
+    } catch {
+      setAuthError(true);
+    }
   };
+
+  const errorBannerLogIn =
+    logInError || authError ? (
+      <Banner title="Logout Error" onDismiss={() => {}} status="warning">
+        <p>
+          There was an error with your login attempt. Please try again later.
+        </p>
+      </Banner>
+    ) : null;
 
   const guestRedirect = () => {
     window.location.href = "/";
@@ -69,8 +75,13 @@ export const Login = ({ setViewer }: Props) => {
     );
   }
 
-  if (logInData && logInData.logIn) {
-    //navigate("/"); TODO: This component updates viewer state on render causing a console warning
+  if (
+    logInData &&
+    logInData.logIn &&
+    logInData.logIn.id !== "" &&
+    logInData.logIn.id
+  ) {
+    //navigate("/"); //TODO: This component updates viewer state on render causing a console warning
     //navigate preserves the warning, window.location.href doesn't
     window.location.href = "/";
   }

@@ -99,7 +99,7 @@ exports.viewerResolvers = {
                     ? yield logInViaGoogle(code, token, db, res)
                     : yield logInViaCookie(token, db, req, res);
                 if (!viewer) {
-                    return { didRequest: true };
+                    return { _id: "", didRequest: true };
                 }
                 return {
                     _id: viewer._id,
@@ -117,7 +117,7 @@ exports.viewerResolvers = {
         logOut: (_root, _args, { res }) => {
             try {
                 res.clearCookie("viewer", cookieOptions);
-                return { didRequest: true };
+                return { _id: "", didRequest: true };
             }
             catch (error) {
                 throw new Error(`Failed to log out: ${error}`);
