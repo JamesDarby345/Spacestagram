@@ -7,7 +7,7 @@ import {
 } from "../../lib/graphql/mutations/LogIn/__generated__/LogIn";
 import { Viewer } from "../../lib/types";
 import { LOG_IN } from "../../lib/graphql/mutations/LogIn";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { Banner, Button, Spinner } from "@shopify/polaris";
 import { useNavigate } from "react-router-dom";
 
@@ -70,7 +70,9 @@ export const Login = ({ setViewer }: Props) => {
   }
 
   if (logInData && logInData.logIn) {
-    navigate("/");
+    //navigate("/"); TODO: This component updates viewer state on render causing a console warning
+    //navigate preserves the warning, window.location.href doesn't
+    window.location.href = "/";
   }
 
   return (
