@@ -81,9 +81,9 @@ export const Login = ({ setViewer }: Props) => {
     logInData.logIn.id !== "" &&
     logInData.logIn.id
   ) {
-    //navigate("/"); //TODO: This component updates viewer state on render causing a console warning
+    navigate("/"); //TODO: This component updates viewer state on render causing a console warning
     //navigate preserves the warning, window.location.href doesn't
-    window.location.href = "/";
+    // window.location.href = "/";
   }
 
   return (
