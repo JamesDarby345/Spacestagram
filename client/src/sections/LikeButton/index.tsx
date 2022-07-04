@@ -1,6 +1,6 @@
 import { useQuery, useMutation, gql } from "@apollo/client";
-import { Button } from "@shopify/polaris";
-import { useEffect, useState } from "react";
+import { Button, Toast } from "@shopify/polaris";
+import { useCallback, useEffect, useState } from "react";
 import { Viewer } from "../../lib/types";
 import {
   likeNASAImageData,
@@ -43,6 +43,12 @@ export const LikeButton = ({
 }: Props) => {
   const userId = viewer.id ? (viewer.id as string) : "";
   const [liked, setLiked] = useState("init");
+  const [loginToastActive, setLoginToastActive] = useState(false);
+  const [likeDisabled, setLikeDisabled] = useState(false);
+
+  const toggleActive = useCallback(() => {
+    return setLoginToastActive((active) => !active), setLikeDisabled(true);
+  }, []);
 
   const [
     likeNASAImage,
@@ -55,6 +61,13 @@ export const LikeButton = ({
   ] = useMutation<unlikeNASAImageData, unlikeNASAImageVariables>(
     UNLIKENASAIMAGE
   );
+
+  const toastNotLoggedIn = loginToastActive ? (
+    <Toast
+      content="Please Login to like the NASA Images"
+      onDismiss={toggleActive}
+    />
+  ) : null;
 
   const handleLikingNASAImage = async (id: string, userId: string) => {
     if (fetchedData?.NASAImageLikedByUser) {
@@ -92,12 +105,16 @@ export const LikeButton = ({
       {liked}
     </Button>
   ) : (
-    <Button
-      disabled={true}
-      accessibilityLabel="like button is disabled until you login with google"
-    >
-      {liked}
-    </Button>
+    <>
+      <Button
+        disabled={likeDisabled}
+        onClick={() => toggleActive()}
+        accessibilityLabel="like button is disabled until you login with google"
+      >
+        {liked}
+      </Button>
+      {toastNotLoggedIn}
+    </>
   );
   return likeButton;
 };
