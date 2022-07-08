@@ -1,7 +1,7 @@
 import { IResolvers } from "@graphql-tools/utils";
 import { Database, NASAImage } from "../../../lib/types";
 import { ObjectId } from "mongodb";
-import { arrayBuffer } from "stream/consumers";
+import { Comment } from "../../../lib/types";
 
 const baseUrl = "https://api.nasa.gov/planetary/apod?api_key=";
 const apiKey = "mVHFdj3idfIQM8TVfEycg58TSHvoAdTBzGGJfmia";
@@ -26,11 +26,14 @@ export const NASAImageResolvers: IResolvers = {
       const NASAImageToReturn = await db.NASAImages.findOne({
         date: args.date,
       });
+      console.log("in db");
       if (!NASAImageToReturn) {
         throw new Error(
           "Failed to find NASAImage in database with date " + args.date
         );
       }
+
+      console.log(NASAImageToReturn);
       return NASAImageToReturn;
     },
     NASAImageLikedByUser: async (
@@ -123,6 +126,8 @@ export const NASAImageResolvers: IResolvers = {
         const hdurl = data.hdurl;
         const service_version = data.service_version;
 
+        console.log("adding NASAImage to database 2");
+
         if (!date || !explanation || !title || !url) {
           return "Missing Required Data";
         } else {
@@ -148,6 +153,7 @@ export const NASAImageResolvers: IResolvers = {
       }
 
       const responseString = fetchNASAData(dateToGet);
+      console.log(responseString);
       return responseString;
     },
     like: async (
@@ -234,31 +240,48 @@ export const NASAImageResolvers: IResolvers = {
       );
       return unlikedNASAImage;
     },
-    postComment: async (
+    postCommentNASAImage: async (
       _root: undefined,
-      { id, commentText }: { id: string; commentText: string },
+      {
+        id,
+        userId,
+        commentText,
+      }: { id: string; userId: string; commentText: string },
       { db }: { db: Database }
     ) => {
-      console.log(id + " " + commentText);
+      console.log(id + " " + userId + " " + commentText);
       const commentedNASAImage = await db.NASAImages.findOne({
         _id: new ObjectId(id),
       });
 
-      if (!commentedNASAImage) {
+      const userWhoCommented = await db.users.findOne({
+        _id: userId,
+      });
+
+      if (!commentedNASAImage || !userWhoCommented) {
         throw new Error("failed to comment NASAImage");
       }
 
       let commentArr = commentedNASAImage.comments;
-      const commentId = new ObjectId();
+      const timestamp = new Date().getTime().toString();
+      const newComment: Comment = {
+        _id: new ObjectId(),
+        user: userWhoCommented.name,
+        text: commentText,
+        likes: 0,
+        timestamp: timestamp,
+        usersWhoFlagged: [],
+      };
 
-      if (commentText.length > 0) {
+      if (commentText && commentText.length > 0) {
         if (!commentArr) {
-          commentArr = [commentId];
+          commentArr = [newComment._id];
         } else {
-          commentArr.push(commentId);
+          commentArr.push(newComment._id);
         }
       }
-
+      console.log(commentArr, "commentArr", commentText);
+      db.comments.insertOne(newComment);
       db.NASAImages.updateOne(
         { _id: new ObjectId(id) },
         { $set: { comments: commentArr } }

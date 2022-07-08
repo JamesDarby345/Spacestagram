@@ -8,16 +8,23 @@ import { gql } from "apollo-server-express";
 
 //likedNASAImages(limit: Int!, page: Int!): NASAImages!
 
-// type Comments {
-//   total: Int
-//   result: [Comment]
-// }
-
 //comments(limit: Int!, page: Int!): Comments!
 
 export const typeDefs = gql`
   input LogInInput {
     code: String!
+  }
+
+  enum CommentsFilter {
+    ALL
+    LATEST_COMMENTS
+    OLDEST_COMMENTS
+    MOST_LIKED
+  }
+
+  type Comments {
+    total: Int!
+    result: [Comment!]!
   }
 
   type User {
@@ -26,7 +33,7 @@ export const typeDefs = gql`
     avatar: String!
     contact: String!
     likedNASAImages: [NASAImage!]
-    comments: [Comment!]
+    comments: [ID!]
   }
 
   type Viewer {
@@ -36,7 +43,7 @@ export const typeDefs = gql`
     name: String!
     didRequest: Boolean!
     likedNASAImages: [NASAImage!]
-    comments: [Comment!]
+    comments: [ID!]
   }
 
   type Comment {
@@ -68,12 +75,22 @@ export const typeDefs = gql`
     authUrl: String!
     user(id: ID!): User!
     NASAImageLikedByUser(date: String!, userId: String!): Boolean
+    NASAImageComments(
+      limit: Int!
+      page: Int!
+      date: String!
+      filter: CommentsFilter!
+    ): Comments!
   }
 
   type Mutation {
     like(id: ID!, userId: String!): NASAImage
     unlike(id: ID!, userId: String!): NASAImage
-    postComment(id: ID!, comment: String): NASAImage
+    postCommentNASAImage(
+      id: ID!
+      userId: String!
+      commentText: String!
+    ): NASAImage
     addNASAImage(dateToGet: String): String
     logIn(input: LogInInput): Viewer!
     logOut: Viewer!

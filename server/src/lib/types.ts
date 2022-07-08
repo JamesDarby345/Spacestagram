@@ -19,7 +19,7 @@ export interface NASAImage {
   service_version: string;
   title: string;
   url: string;
-  comments: ObjectId[];
+  comments?: ObjectId[];
 }
 
 export interface Comment {

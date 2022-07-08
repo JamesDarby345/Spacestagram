@@ -9,7 +9,7 @@ export interface NASAImage {
   service_version: string;
   title: string;
   url: string;
-  comments: [string];
+  comments: [Comment];
 }
 
 export interface NASAImagesData {
@@ -57,5 +57,6 @@ export interface postCommentNASAImageData {
 
 export interface postCommentNASAImageVariables {
   id: string;
-  comment: string;
+  userId: string;
+  commentText: string;
 }

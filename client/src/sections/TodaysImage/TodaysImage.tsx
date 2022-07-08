@@ -42,8 +42,12 @@ const NASAIMAGE = gql`
 `;
 
 const POSTCOMMENTNASAIMAGE = gql`
-  mutation postCommentNASAImage($id: ID!, $comment: String!) {
-    postComment(id: $id, comment: $comment) {
+  mutation postCommentNASAImage(
+    $id: ID!
+    $userId: String!
+    $commentText: String!
+  ) {
+    postCommentNASAImage(id: $id, userId: $userId, commentText: $commentText) {
       id
       comments
     }
@@ -88,8 +92,12 @@ export const TodaysImage = ({ viewer }: Props) => {
     refetch();
   };
 
-  const handlePostingComment = async (id: string, comment: string) => {
-    await postCommentNASAImage({ variables: { id, comment } });
+  const handlePostingComment = async (
+    id: string,
+    userId: string,
+    commentText: string
+  ) => {
+    await postCommentNASAImage({ variables: { id, userId, commentText } });
     setCommentValue("");
     refetch();
   };
@@ -135,7 +143,9 @@ export const TodaysImage = ({ viewer }: Props) => {
       <div className="post_comment_button">
         <Button
           disabled={commentValue.length <= 0}
-          onClick={() => handlePostingComment(NASAImageId, commentValue)}
+          onClick={() =>
+            handlePostingComment(NASAImageId, userId, commentValue)
+          }
         >
           Post
         </Button>
@@ -149,7 +159,7 @@ export const TodaysImage = ({ viewer }: Props) => {
         ?.slice(0)
         .reverse()
         .map((comment) => (
-          <Card key={comment}>
+          <Card key={comment.textContent}>
             <div className="comment">{comment}</div>
           </Card>
         ))}
@@ -202,9 +212,9 @@ export const TodaysImage = ({ viewer }: Props) => {
             <span className="copyright">{copyright}</span>
           </div>
         </MediaCard>
-        {/* <div className="post_comment">{commentEntry}</div>
+        <div className="post_comment">{commentEntry}</div>
 
-        {commentSpace} */}
+        {commentSpace}
       </div>
     ) : (
       <NASAImageSkeleton />
