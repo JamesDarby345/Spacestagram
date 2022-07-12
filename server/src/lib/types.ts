@@ -24,7 +24,7 @@ export interface NASAImage {
 
 export interface Comment {
   _id: ObjectId;
-  user: string;
+  userId: string;
   likes: number;
   timestamp: string;
   text: string;

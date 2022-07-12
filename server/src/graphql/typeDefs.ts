@@ -48,11 +48,11 @@ export const typeDefs = gql`
 
   type Comment {
     id: ID!
-    user: User!
+    userId: String!
     likes: Int!
     timestamp: String!
     text: String!
-    usersWhoFlagged: [User!]
+    usersWhoFlagged: [ID!]
   }
 
   type NASAImage {

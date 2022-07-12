@@ -24,7 +24,13 @@ const ADDNASAIMAGE = gql`
 `;
 
 const NASAIMAGE = gql`
-  query NASAImage($date: String!, $userId: String!) {
+  query NASAImage(
+    $date: String!
+    $userId: String!
+    $limit: Int!
+    $page: Int!
+    $filter: String!
+  ) {
     NASAImage(date: $date) {
       id
       likes
@@ -38,6 +44,17 @@ const NASAIMAGE = gql`
       comments
     }
     NASAImageLikedByUser(date: $date, userId: $userId)
+    NASAImageComments(
+      limit: $limit
+      page: $page
+      date: $date
+      filter: $filter
+    ) {
+      total
+      result {
+        text
+      }
+    }
   }
 `;
 
@@ -111,7 +128,13 @@ export const TodaysImage = ({ viewer }: Props) => {
     data: fetchedData,
     refetch,
   } = useQuery<NASAImageData, NASAImageVariables>(NASAIMAGE, {
-    variables: { date: dateToDisplay, userId: userId },
+    variables: {
+      date: dateToDisplay,
+      userId: userId,
+      limit: 3,
+      page: 1,
+      filter: "LATEST_COMMENTS",
+    },
   });
 
   if (!fetchedData && !fetchedDataLoading) {
@@ -159,7 +182,7 @@ export const TodaysImage = ({ viewer }: Props) => {
         ?.slice(0)
         .reverse()
         .map((comment) => (
-          <Card key={comment.textContent}>
+          <Card key={comment}>
             <div className="comment">{comment}</div>
           </Card>
         ))}

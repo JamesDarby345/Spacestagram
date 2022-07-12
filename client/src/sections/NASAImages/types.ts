@@ -9,7 +9,7 @@ export interface NASAImage {
   service_version: string;
   title: string;
   url: string;
-  comments: [Comment];
+  comments: [string];
 }
 
 export interface NASAImagesData {
@@ -19,10 +19,15 @@ export interface NASAImagesData {
 export interface NASAImageData {
   NASAImage: NASAImage;
   NASAImageLikedByUser: boolean;
+  total: number;
+  result: Comment[];
 }
 export interface NASAImageVariables {
   date: string;
   userId: string;
+  limit: number;
+  page: number;
+  filter: string;
 }
 
 export interface addNASAImageData {

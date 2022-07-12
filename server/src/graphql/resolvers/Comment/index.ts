@@ -20,47 +20,46 @@ export const commentResolvers: IResolvers = {
           );
         }
 
-        let comments: any;
-        switch (filter) {
-          case "ALL":
-            comments = await db.comments
-              .find({
-                nasaImageId: queiredNASAImage._id,
-              })
-              .toArray();
-            break;
-          case "LATEST_COMMENTS":
-            comments = await db.comments
-              .find({
-                nasaImageId: queiredNASAImage._id,
-              })
-              .sort({ timestamp: -1 })
-              .toArray();
-            break;
-          case "OLDEST_COMMENTS":
-            comments = await db.comments
-              .find({
-                nasaImageId: queiredNASAImage._id,
-              })
-              .sort({ timestamp: 1 })
-              .toArray();
-            break;
-          case "MOST_LIKED":
-            comments = await db.comments
-              .find({
-                nasaImageId: queiredNASAImage._id,
-              })
-              .sort({ likes: -1 })
-              .toArray();
-            break;
-          default:
-            throw new Error("invalid filter");
+        let comments: any = [];
+        if (filter == "ALL") {
+          comments = await db.comments
+            .find({
+              _id: { $in: queiredNASAImage.comments },
+            })
+            .toArray();
+        } else if (filter == "LATEST_COMMENTS") {
+          comments = await db.comments
+            .find({
+              _id: { $in: queiredNASAImage.comments },
+            })
+            .sort({ timestamp: -1 })
+            .skip(page * limit)
+            .limit(limit)
+            .toArray();
+        } else if (filter == "OLDEST_COMMENTS") {
+          comments = await db.comments
+            .find({
+              _id: { $in: queiredNASAImage.comments },
+            })
+            .sort({ timestamp: 1 })
+            .skip(page * limit)
+            .limit(limit)
+            .toArray();
+        } else if (filter == "MOST_LIKED") {
+          comments = await db.comments
+            .find({
+              _id: { $in: queiredNASAImage.comments },
+            })
+            .sort({ likes: -1 })
+            .skip(page * limit)
+            .limit(limit)
+            .toArray();
         }
 
-        const total = comments.length;
-        const result = comments.slice(page * limit, (page + 1) * limit);
-
-        return { total, result };
+        const total = queiredNASAImage.comments
+          ? queiredNASAImage.comments.length
+          : 0;
+        return { total, result: comments };
       } catch (error) {
         throw new Error(`Failed to query comments: ${error}`);
       }

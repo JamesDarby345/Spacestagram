@@ -266,7 +266,7 @@ export const NASAImageResolvers: IResolvers = {
       const timestamp = new Date().getTime().toString();
       const newComment: Comment = {
         _id: new ObjectId(),
-        user: userWhoCommented.name,
+        userId: userWhoCommented._id,
         text: commentText,
         likes: 0,
         timestamp: timestamp,
