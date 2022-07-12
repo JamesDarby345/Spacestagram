@@ -20,14 +20,13 @@ export const commentResolvers: IResolvers = {
           );
         }
 
-        let comments: any = [];
-        if (filter == "ALL") {
-          comments = await db.comments
-            .find({
-              _id: { $in: queiredNASAImage.comments },
-            })
-            .toArray();
-        } else if (filter == "LATEST_COMMENTS") {
+        // let comments = await db.comments
+        //   .find({
+        //     _id: { $in: queiredNASAImage.comments },
+        //   })
+        //   .toArray();
+        let comments = [];
+        if (filter == "LATEST_COMMENTS") {
           comments = await db.comments
             .find({
               _id: { $in: queiredNASAImage.comments },
@@ -54,8 +53,14 @@ export const commentResolvers: IResolvers = {
             .skip(page * limit)
             .limit(limit)
             .toArray();
+        } else {
+          comments = await db.comments
+            .find({
+              _id: { $in: queiredNASAImage.comments },
+            })
+            .toArray();
         }
-
+        console.log(comments, queiredNASAImage.comments);
         const total = queiredNASAImage.comments
           ? queiredNASAImage.comments.length
           : 0;

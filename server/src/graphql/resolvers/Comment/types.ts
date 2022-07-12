@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export enum CommentsFilter {
   ALL = "ALL",
   LATEST_COMMENTS = "LATEST_COMMENTS",
@@ -14,5 +15,5 @@ export interface CommentsArgs {
 
 export interface CommentsData {
   total: number;
-  result: Comment[];
+  result: any[];
 }

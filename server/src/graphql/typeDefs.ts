@@ -79,7 +79,7 @@ export const typeDefs = gql`
       limit: Int!
       page: Int!
       date: String!
-      filter: CommentsFilter!
+      filter: String!
     ): Comments!
   }
 

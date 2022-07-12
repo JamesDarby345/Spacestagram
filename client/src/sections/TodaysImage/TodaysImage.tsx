@@ -131,8 +131,8 @@ export const TodaysImage = ({ viewer }: Props) => {
     variables: {
       date: dateToDisplay,
       userId: userId,
-      limit: 3,
-      page: 1,
+      limit: 10,
+      page: 0,
       filter: "LATEST_COMMENTS",
     },
   });
@@ -148,7 +148,7 @@ export const TodaysImage = ({ viewer }: Props) => {
     []
   );
 
-  const comments = fetchedData?.NASAImage.comments;
+  const commentIds = fetchedData?.NASAImage.comments;
   const commentEntry = (
     <div>
       <div className="post_comment_text">
@@ -176,16 +176,17 @@ export const TodaysImage = ({ viewer }: Props) => {
     </div>
   );
 
+  console.log(fetchedData?.NASAImageComments);
+
   var commentSpace = (
     <div>
-      {comments
-        ?.slice(0)
-        .reverse()
-        .map((comment) => (
-          <Card key={comment}>
-            <div className="comment">{comment}</div>
-          </Card>
-        ))}
+      {fetchedData?.NASAImageComments.result.map((comment) => (
+        <Card key={comment.id}>
+          <div key={comment.id} className="comment">
+            {comment.text}
+          </div>
+        </Card>
+      ))}
     </div>
   );
 

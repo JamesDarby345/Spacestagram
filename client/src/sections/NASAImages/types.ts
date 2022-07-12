@@ -12,6 +12,20 @@ export interface NASAImage {
   comments: [string];
 }
 
+export interface Comments {
+  total: number;
+  result: [Comment];
+}
+
+export interface Comment {
+  id: string;
+  userId: string;
+  likes: number;
+  timestamp: string;
+  text: string;
+  usersWhoFlagged: [string];
+}
+
 export interface NASAImagesData {
   NASAImages: NASAImage[];
 }
@@ -19,8 +33,7 @@ export interface NASAImagesData {
 export interface NASAImageData {
   NASAImage: NASAImage;
   NASAImageLikedByUser: boolean;
-  total: number;
-  result: Comment[];
+  NASAImageComments: Comments;
 }
 export interface NASAImageVariables {
   date: string;
