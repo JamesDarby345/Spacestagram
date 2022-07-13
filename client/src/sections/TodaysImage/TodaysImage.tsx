@@ -3,7 +3,14 @@
 import "./../../index.css";
 import { useState, useEffect, useCallback } from "react";
 import { useQuery, useMutation, gql } from "@apollo/client";
-import { Button, Card, Link, MediaCard, TextField } from "@shopify/polaris";
+import {
+  Avatar,
+  Button,
+  Card,
+  Link,
+  MediaCard,
+  TextField,
+} from "@shopify/polaris";
 import {
   addNASAImageData,
   addNASAImageVariables,
@@ -176,16 +183,28 @@ export const TodaysImage = ({ viewer }: Props) => {
     </div>
   );
 
-  console.log(fetchedData?.NASAImageComments);
-
   var commentSpace = (
     <div>
       {fetchedData?.NASAImageComments.result.map((comment) => (
-        <Card key={comment.id}>
-          <div key={comment.id} className="comment">
-            {comment.text}
+        <div className="flex flex-row">
+          <div className="grow">
+            <Card key={comment.id}>
+              <div className="ml-4 pt-1 pb-1 mb-[15px] flex flex-row">
+                <div className="scale-75">
+                  <Avatar customer source={comment.userAvatar} />
+                  <p>{comment.userName}</p>
+                </div>
+                <div className="place-self-center ml-4 grow pt-4 pb-4">
+                  {comment.text}
+                </div>
+              </div>
+            </Card>
           </div>
-        </Card>
+          <div className="justify-self-end shrink-0">
+            <Button>Like</Button>
+            <Button>Flag</Button>
+          </div>
+        </div>
       ))}
     </div>
   );

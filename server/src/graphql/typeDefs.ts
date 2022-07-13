@@ -49,6 +49,8 @@ export const typeDefs = gql`
   type Comment {
     id: ID!
     userId: String!
+    userAvatar: String
+    userName: String
     likes: Int!
     timestamp: String!
     text: String!

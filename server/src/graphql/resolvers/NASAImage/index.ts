@@ -267,6 +267,8 @@ export const NASAImageResolvers: IResolvers = {
       const newComment: Comment = {
         _id: new ObjectId(),
         userId: userWhoCommented._id,
+        userAvatar: userWhoCommented.avatar,
+        userName: userWhoCommented.name,
         text: commentText,
         likes: 0,
         timestamp: timestamp,

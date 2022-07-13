@@ -20,6 +20,8 @@ export interface Comments {
 export interface Comment {
   id: string;
   userId: string;
+  userAvatar: string;
+  userName: string;
   likes: number;
   timestamp: string;
   text: string;
