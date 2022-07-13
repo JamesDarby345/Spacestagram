@@ -54,7 +54,7 @@ export const typeDefs = gql`
     likes: Int!
     timestamp: String!
     text: String!
-    usersWhoFlagged: [ID!]
+    usersWhoFlagged: [String!]
   }
 
   type NASAImage {
@@ -93,6 +93,7 @@ export const typeDefs = gql`
       userId: String!
       commentText: String!
     ): NASAImage
+    flagComment(commentId: ID!, userId: String!): Boolean
     addNASAImage(dateToGet: String): String
     logIn(input: LogInInput): Viewer!
     logOut: Viewer!

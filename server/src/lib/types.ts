@@ -30,7 +30,7 @@ export interface Comment {
   likes: number;
   timestamp: string;
   text: string;
-  usersWhoFlagged: ObjectId[];
+  usersWhoFlagged: string[];
 }
 export interface User {
   _id: string;

@@ -249,7 +249,6 @@ export const NASAImageResolvers: IResolvers = {
       }: { id: string; userId: string; commentText: string },
       { db }: { db: Database }
     ) => {
-      console.log(id + " " + userId + " " + commentText);
       const commentedNASAImage = await db.NASAImages.findOne({
         _id: new ObjectId(id),
       });
@@ -282,7 +281,13 @@ export const NASAImageResolvers: IResolvers = {
           commentArr.push(newComment._id);
         }
       }
-      console.log(commentArr, "commentArr", commentText);
+
+      const newUserComments = userWhoCommented.comments.concat(newComment._id);
+
+      db.users.updateOne(
+        { _id: userId },
+        { $set: { comments: newUserComments } }
+      );
       db.comments.insertOne(newComment);
       db.NASAImages.updateOne(
         { _id: new ObjectId(id) },

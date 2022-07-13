@@ -155,10 +155,9 @@ export const TodaysImage = ({ viewer }: Props) => {
     []
   );
 
-  const commentIds = fetchedData?.NASAImage.comments;
   const commentEntry = (
-    <div>
-      <div className="post_comment_text">
+    <div className="flex flex-row">
+      <div className="grow">
         <TextField
           label="Comment Entry"
           labelHidden={true}
@@ -170,7 +169,7 @@ export const TodaysImage = ({ viewer }: Props) => {
           spellCheck={true}
         />
       </div>
-      <div className="post_comment_button">
+      <div className="shrink-0">
         <Button
           disabled={commentValue.length <= 0}
           onClick={() =>

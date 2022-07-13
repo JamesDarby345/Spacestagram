@@ -1,5 +1,6 @@
 import { IResolvers } from "@graphql-tools/utils";
 import { Database } from "../../../lib/types";
+import { ObjectId } from "mongodb";
 import { CommentsArgs, CommentsData } from "./types";
 
 export const commentResolvers: IResolvers = {
@@ -67,6 +68,30 @@ export const commentResolvers: IResolvers = {
         return { total, result: comments };
       } catch (error) {
         throw new Error(`Failed to query comments: ${error}`);
+      }
+    },
+  },
+  Mutation: {
+    flagComment: async (
+      _root: undefined,
+      { commentId, userId }: { commentId: string; userId: string },
+      { db }: { db: Database }
+    ): Promise<boolean> => {
+      try {
+        console.log(commentId, userId);
+        const comment_id = new ObjectId(commentId);
+        const queiredComment = await db.comments.findOne({
+          _id: comment_id,
+        });
+        console.log(queiredComment);
+        queiredComment?.usersWhoFlagged.push(userId);
+        await db.comments.updateOne(
+          { _id: comment_id },
+          { $set: { usersWhoFlagged: queiredComment?.usersWhoFlagged } }
+        );
+        return true;
+      } catch (error) {
+        throw new Error(`Failed to flag comment: ${error}`);
       }
     },
   },
