@@ -23,6 +23,7 @@ import { NASAImageSkeleton } from "./NASAImageSkeleton";
 import { Viewer } from "../../lib/types";
 import { LikeButton } from "../LikeButton";
 import { DateSelector } from "../DateSelector";
+import { Comments } from "../Comments";
 
 const ADDNASAIMAGE = gql`
   mutation addNASAImage($dateToGet: String) {
@@ -65,19 +66,6 @@ const NASAIMAGE = gql`
   }
 `;
 
-const POSTCOMMENTNASAIMAGE = gql`
-  mutation postCommentNASAImage(
-    $id: ID!
-    $userId: String!
-    $commentText: String!
-  ) {
-    postCommentNASAImage(id: $id, userId: $userId, commentText: $commentText) {
-      id
-      comments
-    }
-  }
-`;
-
 interface Props {
   viewer: Viewer;
 }
@@ -85,6 +73,8 @@ interface Props {
 export const TodaysImage = ({ viewer }: Props) => {
   const userId = viewer.id ? (viewer.id as string) : "";
   const hoursAgo = 12;
+
+  const [commentsPage, setCommentsPage] = useState(0);
 
   //default is 12 ({hoursAgo}) hours past current time to prevent
   //requesting data NASA hasnt added to the API yet
@@ -106,23 +96,8 @@ export const TodaysImage = ({ viewer }: Props) => {
     variables: { dateToGet: dateToDisplay },
   });
 
-  const [postCommentNASAImage] = useMutation<
-    postCommentNASAImageData,
-    postCommentNASAImageVariables
-  >(POSTCOMMENTNASAIMAGE);
-
   const handleAddNASAImage = async (dateToGet: string) => {
     await addNASAImage({ variables: { dateToGet } });
-    refetch();
-  };
-
-  const handlePostingComment = async (
-    id: string,
-    userId: string,
-    commentText: string
-  ) => {
-    await postCommentNASAImage({ variables: { id, userId, commentText } });
-    setCommentValue("");
     refetch();
   };
 
@@ -139,7 +114,7 @@ export const TodaysImage = ({ viewer }: Props) => {
       date: dateToDisplay,
       userId: userId,
       limit: 10,
-      page: 0,
+      page: commentsPage,
       filter: "LATEST_COMMENTS",
     },
   });
@@ -148,67 +123,6 @@ export const TodaysImage = ({ viewer }: Props) => {
     handleAddNASAImage(dateToDisplay);
   }
 
-  const [commentValue, setCommentValue] = useState("");
-
-  const handleCommentEntry = useCallback(
-    (newValue) => setCommentValue(newValue),
-    []
-  );
-
-  const commentEntry = (
-    <div className="flex flex-row">
-      <div className="grow">
-        <TextField
-          label="Comment Entry"
-          labelHidden={true}
-          value={commentValue}
-          placeholder="Add a comment"
-          onChange={handleCommentEntry}
-          multiline={1}
-          autoComplete="off"
-          spellCheck={true}
-        />
-      </div>
-      <div className="shrink-0">
-        <Button
-          disabled={commentValue.length <= 0}
-          onClick={() =>
-            handlePostingComment(NASAImageId, userId, commentValue)
-          }
-        >
-          Post
-        </Button>
-      </div>
-    </div>
-  );
-
-  var commentSpace = (
-    <div>
-      {fetchedData?.NASAImageComments.result.map((comment) => (
-        <div className="flex flex-row">
-          <div className="grow">
-            <Card key={comment.id}>
-              <div className="ml-4 pt-1 pb-1 mb-[15px] flex flex-row">
-                <div className="scale-75">
-                  <Avatar customer source={comment.userAvatar} />
-                  <p>{comment.userName}</p>
-                </div>
-                <div className="place-self-center ml-4 grow pt-4 pb-4">
-                  {comment.text}
-                </div>
-              </div>
-            </Card>
-          </div>
-          <div className="justify-self-end shrink-0">
-            <Button>Like</Button>
-            <Button>Flag</Button>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-
-  const NASAImageId = fetchedData?.NASAImage.id || "";
   var copyright = fetchedData?.NASAImage.copyright || "";
   if (copyright && copyright !== "") {
     copyright = "Copyright: " + copyright;
@@ -254,9 +168,12 @@ export const TodaysImage = ({ viewer }: Props) => {
             <span className="copyright">{copyright}</span>
           </div>
         </MediaCard>
-        <div className="post_comment">{commentEntry}</div>
-
-        {commentSpace}
+        <Comments
+          viewer={viewer}
+          fetchedData={fetchedData}
+          setCommentsPage={setCommentsPage}
+          refetch={refetch}
+        />
       </div>
     ) : (
       <NASAImageSkeleton />
