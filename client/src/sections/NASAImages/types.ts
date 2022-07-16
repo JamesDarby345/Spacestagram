@@ -80,3 +80,8 @@ export interface postCommentNASAImageVariables {
   userId: string;
   commentText: string;
 }
+
+export interface flagCommentVariables {
+  commentId: string;
+  userId: string;
+}

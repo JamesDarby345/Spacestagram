@@ -26,14 +26,11 @@ export const NASAImageResolvers: IResolvers = {
       const NASAImageToReturn = await db.NASAImages.findOne({
         date: args.date,
       });
-      console.log("in db");
       if (!NASAImageToReturn) {
         throw new Error(
           "Failed to find NASAImage in database with date " + args.date
         );
       }
-
-      console.log(NASAImageToReturn);
       return NASAImageToReturn;
     },
     NASAImageLikedByUser: async (
@@ -126,8 +123,6 @@ export const NASAImageResolvers: IResolvers = {
         const hdurl = data.hdurl;
         const service_version = data.service_version;
 
-        console.log("adding NASAImage to database 2");
-
         if (!date || !explanation || !title || !url) {
           return "Missing Required Data";
         } else {
@@ -153,7 +148,6 @@ export const NASAImageResolvers: IResolvers = {
       }
 
       const responseString = fetchNASAData(dateToGet);
-      console.log(responseString);
       return responseString;
     },
     like: async (
@@ -264,7 +258,7 @@ export const NASAImageResolvers: IResolvers = {
       let commentArr = commentedNASAImage.comments;
       const timestamp = new Date().getTime().toString();
       const newComment: Comment = {
-        _id: new ObjectId(),
+        id: new ObjectId(),
         userId: userWhoCommented._id,
         userAvatar: userWhoCommented.avatar,
         userName: userWhoCommented.name,
@@ -276,13 +270,13 @@ export const NASAImageResolvers: IResolvers = {
 
       if (commentText && commentText.length > 0) {
         if (!commentArr) {
-          commentArr = [newComment._id];
+          commentArr = [newComment.id];
         } else {
-          commentArr.push(newComment._id);
+          commentArr.push(newComment.id);
         }
       }
 
-      const newUserComments = userWhoCommented.comments.concat(newComment._id);
+      const newUserComments = userWhoCommented.comments.concat(newComment.id);
 
       db.users.updateOne(
         { _id: userId },

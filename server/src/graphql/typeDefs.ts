@@ -78,6 +78,7 @@ export const typeDefs = gql`
     user(id: ID!): User!
     NASAImageLikedByUser(date: String!, userId: String!): Boolean
     NASAImageComments(
+      userId: String
       limit: Int!
       page: Int!
       date: String!

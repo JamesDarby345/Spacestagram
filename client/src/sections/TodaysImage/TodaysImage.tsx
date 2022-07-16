@@ -1,22 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/img-redundant-alt */
 import "./../../index.css";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, gql } from "@apollo/client";
-import {
-  Avatar,
-  Button,
-  Card,
-  Link,
-  MediaCard,
-  TextField,
-} from "@shopify/polaris";
+import { Link, MediaCard, TextField } from "@shopify/polaris";
 import {
   addNASAImageData,
   addNASAImageVariables,
   NASAImageData,
-  postCommentNASAImageData,
-  postCommentNASAImageVariables,
   NASAImageVariables,
 } from "../NASAImages/types";
 import { NASAImageSkeleton } from "./NASAImageSkeleton";
@@ -53,6 +44,7 @@ const NASAIMAGE = gql`
     }
     NASAImageLikedByUser(date: $date, userId: $userId)
     NASAImageComments(
+      userId: $userId
       limit: $limit
       page: $page
       date: $date
@@ -61,6 +53,8 @@ const NASAIMAGE = gql`
       total
       result {
         text
+        userAvatar
+        userName
       }
     }
   }
@@ -171,6 +165,7 @@ export const TodaysImage = ({ viewer }: Props) => {
         <Comments
           viewer={viewer}
           fetchedData={fetchedData}
+          commentsPage={commentsPage}
           setCommentsPage={setCommentsPage}
           refetch={refetch}
         />

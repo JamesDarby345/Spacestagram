@@ -4,9 +4,11 @@ export enum CommentsFilter {
   LATEST_COMMENTS = "LATEST_COMMENTS",
   OLDEST_COMMENTS = "OLDEST_COMMENTS",
   MOST_LIKED = "MOST_LIKED",
+  SAFE_COMMENTS = "SAFE_COMMENTS",
 }
 
 export interface CommentsArgs {
+  userId: string;
   limit: number;
   page: number;
   date: string;

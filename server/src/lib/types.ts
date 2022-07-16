@@ -23,7 +23,7 @@ export interface NASAImage {
 }
 
 export interface Comment {
-  _id: ObjectId;
+  id: ObjectId;
   userId: string;
   userAvatar: string;
   userName: string;

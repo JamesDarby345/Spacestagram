@@ -3,6 +3,7 @@ import { Avatar, Button, Card, TextField } from "@shopify/polaris";
 import { useCallback, useState } from "react";
 import { Viewer } from "../../lib/types";
 import {
+  flagCommentVariables,
   NASAImageData,
   postCommentNASAImageData,
   postCommentNASAImageVariables,
@@ -11,6 +12,7 @@ import {
 interface Props {
   viewer: Viewer;
   fetchedData: NASAImageData | undefined;
+  commentsPage: number;
   setCommentsPage: (commentsPage: number) => void;
   refetch: () => void;
 }
@@ -28,9 +30,16 @@ const POSTCOMMENTNASAIMAGE = gql`
   }
 `;
 
+const FLAGCOMMENT = gql`
+  mutation flagComment($commentId: ID!, $userId: String!) {
+    flagComment(commentId: $commentId, userId: $userId)
+  }
+`;
+
 export const Comments = ({
   viewer,
   fetchedData,
+  commentsPage,
   setCommentsPage,
   refetch,
 }: Props) => {
@@ -41,6 +50,8 @@ export const Comments = ({
     postCommentNASAImageData,
     postCommentNASAImageVariables
   >(POSTCOMMENTNASAIMAGE);
+
+  const [flagComment] = useMutation<boolean, flagCommentVariables>(FLAGCOMMENT);
 
   const handlePostingComment = async (
     id: string,
@@ -56,6 +67,20 @@ export const Comments = ({
     (newValue) => setCommentValue(newValue),
     []
   );
+
+  const handleLoadNextComments = async (commentsPage: number) =>
+    setCommentsPage(commentsPage + 1);
+
+  const handleLoadPrevComments = async (commentsPage: number) => {
+    if (commentsPage > 0) {
+      setCommentsPage(commentsPage - 1);
+    }
+  };
+
+  const handleFlag = async (commentId: string, userId: string) => {
+    await flagComment({ variables: { commentId, userId } });
+    refetch();
+  };
 
   const NASAImageId = fetchedData?.NASAImage.id || "";
 
@@ -88,10 +113,10 @@ export const Comments = ({
 
   var commentSpace = (
     <div>
-      {fetchedData?.NASAImageComments.result.map((comment) => (
+      {fetchedData?.NASAImageComments.result.map((comment, i) => (
         <div className="flex flex-row">
           <div className="grow">
-            <Card key={comment.id}>
+            <Card key={i}>
               <div className="ml-4 pt-1 pb-1 mb-[15px] flex flex-row">
                 <div className="scale-75">
                   <Avatar customer source={comment.userAvatar} />
@@ -105,12 +130,39 @@ export const Comments = ({
           </div>
           <div className="justify-self-end shrink-0">
             <Button>Like</Button>
-            <Button>Flag</Button>
+            <Button onClick={() => handleFlag(comment.id.toString(), userId)}>
+              Flag
+            </Button>
           </div>
         </div>
       ))}
     </div>
   );
+
+  if (fetchedData) {
+    var loadPrevComments =
+      commentsPage > 0 ? (
+        <Button onClick={() => handleLoadPrevComments(commentsPage)}>
+          Previous Comments
+        </Button>
+      ) : null;
+
+    var loadNextComments =
+      (commentsPage + 1) * 10 < fetchedData?.NASAImageComments.total ? (
+        <Button onClick={() => handleLoadNextComments(commentsPage)}>
+          Next Comments
+        </Button>
+      ) : null;
+
+    return (
+      <div>
+        <div className="post_comment">{commentEntry}</div>
+        {commentSpace}
+        {loadPrevComments}
+        {loadNextComments}
+      </div>
+    );
+  }
 
   return (
     <div>
